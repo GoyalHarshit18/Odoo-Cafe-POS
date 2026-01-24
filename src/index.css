@@ -1,0 +1,275 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Odoo Cafe POS Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    /* Odoo-inspired Purple Theme */
+    --background: 0 0% 98%;
+    --foreground: 250 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 250 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 250 10% 15%;
+
+    /* Odoo Purple Primary */
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 262 83% 65%;
+    --primary-dark: 262 83% 45%;
+
+    /* Soft Secondary */
+    --secondary: 250 10% 95%;
+    --secondary-foreground: 250 10% 25%;
+
+    --muted: 250 10% 94%;
+    --muted-foreground: 250 5% 45%;
+
+    --accent: 262 60% 95%;
+    --accent-foreground: 262 83% 45%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 250 10% 90%;
+    --input: 250 10% 90%;
+    --ring: 262 83% 58%;
+
+    --radius: 0.75rem;
+
+    /* Status Colors */
+    --status-free: 142 76% 36%;
+    --status-free-bg: 142 76% 95%;
+    --status-occupied: 45 93% 47%;
+    --status-occupied-bg: 45 93% 95%;
+    --status-pending: 0 72% 51%;
+    --status-pending-bg: 0 72% 95%;
+
+    /* Warm Restaurant Tones */
+    --warm-wood: 30 40% 25%;
+    --warm-cream: 40 30% 96%;
+    --warm-amber: 38 92% 50%;
+
+    /* Kitchen Display Dark Theme */
+    --kds-background: 220 15% 10%;
+    --kds-card: 220 15% 15%;
+    --kds-foreground: 0 0% 95%;
+    --kds-accent: 142 76% 45%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-card: 0 2px 8px -2px rgb(139 92 246 / 0.1), 0 4px 12px -4px rgb(0 0 0 / 0.08);
+
+    /* Sidebar */
+    --sidebar-background: 262 40% 98%;
+    --sidebar-foreground: 250 10% 25%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 60% 95%;
+    --sidebar-accent-foreground: 262 83% 45%;
+    --sidebar-border: 250 10% 90%;
+    --sidebar-ring: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 220 15% 8%;
+    --foreground: 0 0% 95%;
+    --card: 220 15% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 220 15% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 262 83% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 262 40% 25%;
+    --accent-foreground: 262 83% 75%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 262 83% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  /* POS Card Styles */
+  .pos-card {
+    @apply bg-card rounded-xl border border-border shadow-[var(--shadow-card)] transition-all duration-200;
+  }
+
+  .pos-card-hover {
+    @apply pos-card hover:shadow-lg hover:border-primary/20 hover:-translate-y-0.5;
+  }
+
+  /* Table Status Cards */
+  .table-card {
+    @apply pos-card-hover cursor-pointer p-4 flex flex-col items-center justify-center min-h-[120px];
+  }
+
+  .table-free {
+    @apply border-l-4 border-l-[hsl(var(--status-free))] bg-[hsl(var(--status-free-bg))];
+  }
+
+  .table-occupied {
+    @apply border-l-4 border-l-[hsl(var(--status-occupied))] bg-[hsl(var(--status-occupied-bg))];
+  }
+
+  .table-pending {
+    @apply border-l-4 border-l-[hsl(var(--status-pending))] bg-[hsl(var(--status-pending-bg))];
+  }
+
+  /* Product Cards */
+  .product-card {
+    @apply pos-card-hover overflow-hidden cursor-pointer;
+  }
+
+  .product-image {
+    @apply w-full aspect-square object-cover;
+  }
+
+  /* Kitchen Display Styles */
+  .kds-ticket {
+    @apply bg-[hsl(var(--kds-card))] rounded-xl p-4 border border-white/10;
+  }
+
+  /* Payment Method Cards */
+  .payment-method {
+    @apply pos-card-hover p-6 flex flex-col items-center gap-3 cursor-pointer;
+  }
+
+  .payment-method-active {
+    @apply border-2 border-primary bg-accent;
+  }
+
+  /* KPI Cards */
+  .kpi-card {
+    @apply pos-card p-5 flex flex-col gap-2;
+  }
+
+  /* Touch-friendly buttons */
+  .touch-btn {
+    @apply min-h-[48px] min-w-[48px] rounded-xl font-medium transition-all duration-200 active:scale-95;
+  }
+
+  /* Quantity controls */
+  .qty-btn {
+    @apply w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-all duration-150 active:scale-90;
+  }
+
+  /* Order item in cart */
+  .order-item {
+    @apply flex items-center gap-3 py-3 border-b border-border last:border-0;
+  }
+
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-badge-free {
+    @apply bg-[hsl(var(--status-free-bg))] text-[hsl(var(--status-free))];
+  }
+
+  .status-badge-occupied {
+    @apply bg-[hsl(var(--status-occupied-bg))] text-[hsl(var(--status-occupied))];
+  }
+
+  .status-badge-pending {
+    @apply bg-[hsl(var(--status-pending-bg))] text-[hsl(var(--status-pending))];
+  }
+}
+
+@layer utilities {
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounceSubtle 0.6s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  @keyframes bounceSubtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+}
