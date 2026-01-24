@@ -1,9 +1,11 @@
 import { usePOS } from '@/context/POSContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Monitor, CheckCircle, Clock, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const CustomerScreen = () => {
   const { selectedTable, orders, currentOrder, getOrderTotal } = usePOS();
+  const { t } = useLanguage();
 
   // Find the most recent order for display
   const recentOrder = orders.filter(o => o.status !== 'paid').slice(-1)[0];
@@ -19,9 +21,9 @@ export const CustomerScreen = () => {
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Monitor className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Customer Display</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{t('customer')}</h1>
           <p className="text-muted-foreground">
-            {selectedTable ? `Table ${selectedTable.number}` : 'Welcome to Odoo Cafe'}
+            {selectedTable ? `${t('table')} ${selectedTable.number}` : t('hello')}
           </p>
         </div>
 
@@ -29,17 +31,17 @@ export const CustomerScreen = () => {
           <div className="pos-card p-12 text-center">
             <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="text-xl font-semibold text-muted-foreground mb-2">
-              No Active Order
+              {t('orderEmpty')}
             </h2>
             <p className="text-muted-foreground">
-              Your order will appear here once items are added
+              {t('yourFoodBeingPrepared')}
             </p>
           </div>
         ) : (
           <div className="pos-card overflow-hidden">
             {/* Order Items with Images */}
             <div className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Your Order</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('orders')}</h2>
               <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-thin">
                 {displayItems.map((item, i) => (
                   <div key={i} className="flex items-center gap-4 animate-slide-in-right" style={{ animationDelay: `${i * 100}ms` }}>
@@ -63,15 +65,15 @@ export const CustomerScreen = () => {
             {/* Summary */}
             <div className="bg-secondary p-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t('subtotal')}</span>
                 <span className="font-medium">₹{total}</span>
               </div>
               <div className="flex justify-between items-center mb-4">
-                <span className="text-muted-foreground">Tax (5%)</span>
+                <span className="text-muted-foreground">{t('tax')} (5%)</span>
                 <span className="font-medium">₹{Math.round(total * 0.05)}</span>
               </div>
               <div className="flex justify-between items-center text-2xl font-bold border-t border-border pt-4">
-                <span>Total</span>
+                <span>{t('total')}</span>
                 <span className="text-primary">₹{Math.round(total * 1.05)}</span>
               </div>
             </div>
@@ -84,17 +86,17 @@ export const CustomerScreen = () => {
               {isPaid ? (
                 <div className="flex items-center justify-center gap-2 text-status-free">
                   <CheckCircle className="w-5 h-5" />
-                  <span className="font-semibold">Payment Complete ✅</span>
+                  <span className="font-semibold">{t('paid')} ✅</span>
                 </div>
               ) : hasPendingPayment ? (
                 <div className="flex items-center justify-center gap-2 text-status-pending">
                   <Clock className="w-5 h-5 animate-pulse" />
-                  <span className="font-semibold">Payment Pending ⏳</span>
+                  <span className="font-semibold">{t('paymentPending')} ⏳</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-status-occupied">
                   <Clock className="w-5 h-5" />
-                  <span className="font-semibold">Order in Progress</span>
+                  <span className="font-semibold">{t('yourFoodBeingPrepared')}</span>
                 </div>
               )}
             </div>
@@ -103,7 +105,7 @@ export const CustomerScreen = () => {
 
         {/* Restaurant Branding */}
         <div className="mt-8 text-center text-muted-foreground">
-          <p className="text-sm">Thank you for dining with us!</p>
+          <p className="text-sm">{t('thankYou')}</p>
           <p className="text-xs mt-1">Odoo Cafe POS • Premium Dining Experience</p>
         </div>
       </div>

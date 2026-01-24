@@ -1,6 +1,6 @@
-import { 
-  LayoutDashboard, 
-  Grid3X3, 
+import {
+  LayoutDashboard,
+  Grid3X3,
   ShoppingBag,
   CreditCard,
   ChefHat,
@@ -13,22 +13,26 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePOS } from '@/context/POSContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useState } from 'react';
 
-const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'floor', label: 'Floor View', icon: Grid3X3 },
-  { id: 'order', label: 'Order', icon: ShoppingBag },
-  { id: 'payment', label: 'Payment', icon: CreditCard },
-  { id: 'kitchen', label: 'Kitchen Display', icon: ChefHat },
-  { id: 'customer', label: 'Customer Display', icon: Monitor },
-  { id: 'reports', label: 'Reports', icon: BarChart3 },
-];
+// menuItems will be defined inside component to use translation
 
 export const Sidebar = () => {
   const { currentScreen, setCurrentScreen, session, closeSession } = usePOS();
+  const { t } = useLanguage();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const menuItems = [
+    { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard },
+    { id: 'floor', label: t('table'), icon: Grid3X3 },
+    { id: 'order', label: t('orders'), icon: ShoppingBag },
+    { id: 'payment', label: t('payment'), icon: CreditCard },
+    { id: 'kitchen', label: t('kitchen'), icon: ChefHat },
+    { id: 'customer', label: t('customer'), icon: Monitor },
+    { id: 'reports', label: t('reports'), icon: BarChart3 },
+  ];
 
   const NavContent = () => (
     <>
@@ -76,9 +80,9 @@ export const Sidebar = () => {
           )}
         >
           <Settings className="w-5 h-5" />
-          {!collapsed && <span className="font-medium">Settings</span>}
+          {!collapsed && <span className="font-medium">{t('settings')}</span>}
         </button>
-        
+
         {session && (
           <button
             onClick={closeSession}
@@ -88,7 +92,7 @@ export const Sidebar = () => {
             )}
           >
             <LogOut className="w-5 h-5" />
-            {!collapsed && <span className="font-medium">Close Session</span>}
+            {!collapsed && <span className="font-medium">{t('closeRegister')}</span>}
           </button>
         )}
       </div>

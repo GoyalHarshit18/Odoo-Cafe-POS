@@ -1,4 +1,5 @@
 import { usePOS } from '@/context/POSContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { KPICard } from '@/components/pos/KPICard';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +21,7 @@ import { cn } from '@/lib/utils';
 
 export const DashboardScreen = () => {
   const { session, openSession, setCurrentScreen, orders, kdsTickets, floors } = usePOS();
+  const { t } = useLanguage();
 
   const totalTables = floors.reduce((sum, f) => sum + f.tables.length, 0);
   const occupiedTables = floors.reduce(
@@ -29,12 +31,12 @@ export const DashboardScreen = () => {
   const activeOrders = kdsTickets.filter(t => t.status !== 'completed').length;
 
   const roleFeatures = [
-    { icon: Grid3X3, label: 'Manage Floors & Tables', color: 'bg-primary/10 text-primary' },
-    { icon: ShoppingBag, label: 'Create Orders', color: 'bg-status-free/10 text-status-free' },
-    { icon: ChefHat, label: 'Kitchen Display', color: 'bg-warm-amber/10 text-warm-amber' },
-    { icon: CreditCard, label: 'Process Payments', color: 'bg-primary/10 text-primary' },
-    { icon: BarChart3, label: 'View Reports', color: 'bg-status-occupied/10 text-status-occupied' },
-    { icon: Settings, label: 'System Settings', color: 'bg-muted text-muted-foreground' },
+    { icon: Grid3X3, label: t('table'), color: 'bg-primary/10 text-primary' },
+    { icon: ShoppingBag, label: t('newOrder'), color: 'bg-status-free/10 text-status-free' },
+    { icon: ChefHat, label: t('kitchen'), color: 'bg-warm-amber/10 text-warm-amber' },
+    { icon: CreditCard, label: t('payment'), color: 'bg-primary/10 text-primary' },
+    { icon: BarChart3, label: t('reports'), color: 'bg-status-occupied/10 text-status-occupied' },
+    { icon: Settings, label: t('settings'), color: 'bg-muted text-muted-foreground' },
   ];
 
   if (!session) {
@@ -77,7 +79,7 @@ export const DashboardScreen = () => {
           </p>
           <Button onClick={openSession} size="lg" className="touch-btn">
             <Play className="w-5 h-5 mr-2" />
-            Open Session
+            {t('openSession')}
           </Button>
         </div>
       </div>
@@ -88,7 +90,7 @@ export const DashboardScreen = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('dashboard')}</h1>
           <p className="text-muted-foreground">
             Session opened at {format(session.openedAt, 'HH:mm')} by {session.cashier}
           </p>
@@ -101,24 +103,24 @@ export const DashboardScreen = () => {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
-          title="Today's Sales"
+          title={t('dailyRevenue')}
           value={`₹${session.totalSales.toLocaleString()}`}
           icon={DollarSign}
           trend={{ value: 12, positive: true }}
         />
         <KPICard
-          title="Orders"
+          title={t('totalOrders')}
           value={session.ordersCount}
           icon={ShoppingBag}
           trend={{ value: 8, positive: true }}
         />
         <KPICard
-          title="Tables Occupied"
+          title={t('activeTables')}
           value={`${occupiedTables}/${totalTables}`}
           icon={Users}
         />
         <KPICard
-          title="Active Kitchen"
+          title={t('kitchen')}
           value={activeOrders}
           icon={ChefHat}
         />
@@ -134,7 +136,7 @@ export const DashboardScreen = () => {
               onClick={() => setCurrentScreen('floor')}
             >
               <Grid3X3 className="w-6 h-6" />
-              <span>Floor View</span>
+              <span>{t('table')}</span>
             </Button>
             <Button
               variant="outline"
@@ -142,7 +144,7 @@ export const DashboardScreen = () => {
               onClick={() => setCurrentScreen('kitchen')}
             >
               <ChefHat className="w-6 h-6" />
-              <span>Kitchen Display</span>
+              <span>{t('kitchen')}</span>
             </Button>
             <Button
               variant="outline"
@@ -150,7 +152,7 @@ export const DashboardScreen = () => {
               onClick={() => setCurrentScreen('reports')}
             >
               <BarChart3 className="w-6 h-6" />
-              <span>Reports</span>
+              <span>{t('reports')}</span>
             </Button>
             <Button
               variant="outline"
@@ -158,17 +160,17 @@ export const DashboardScreen = () => {
               onClick={() => setCurrentScreen('customer')}
             >
               <TrendingUp className="w-6 h-6" />
-              <span>Customer Display</span>
+              <span>{t('customer')}</span>
             </Button>
           </div>
         </div>
 
         <div className="pos-card p-6">
-          <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('orders')}</h2>
           {orders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>No orders yet</p>
+              <p>{t('orderEmpty')}</p>
               <p className="text-sm">Start by selecting a table</p>
             </div>
           ) : (
@@ -177,7 +179,7 @@ export const DashboardScreen = () => {
                 <div key={order.id} className="flex items-center justify-between p-3 bg-secondary rounded-xl">
                   <div>
                     <p className="font-medium">#{order.id}</p>
-                    <p className="text-sm text-muted-foreground">Table {order.tableNumber}</p>
+                    <p className="text-sm text-muted-foreground">{t('table')} {order.tableNumber}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold">₹{order.total}</p>

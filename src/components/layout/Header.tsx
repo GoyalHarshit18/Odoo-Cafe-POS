@@ -2,9 +2,14 @@ import { usePOS } from '@/context/POSContext';
 import { Bell, User, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
+import { LanguageSwitcher } from '../LanguageSwitcher';
+import { ThemeToggle } from '../ThemeToggle';
+
+import { useLanguage } from '@/context/LanguageContext';
 
 export const Header = () => {
   const { session, selectedTable } = usePOS();
+  const { t } = useLanguage();
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -21,11 +26,11 @@ export const Header = () => {
             <span>Session Active</span>
           </div>
         )}
-        
+
         {selectedTable && (
           <div className="flex items-center gap-2 px-3 py-1.5 bg-accent rounded-lg">
             <span className="text-sm font-medium text-accent-foreground">
-              Table {selectedTable.number}
+              {t('table')} {selectedTable.number}
             </span>
           </div>
         )}
@@ -37,6 +42,9 @@ export const Header = () => {
           <span>{format(time, 'EEE, MMM d')}</span>
           <span className="font-medium text-foreground">{format(time, 'HH:mm')}</span>
         </div>
+
+        <ThemeToggle />
+        <LanguageSwitcher />
 
         <button className="relative p-2 hover:bg-accent rounded-lg transition-colors">
           <Bell className="w-5 h-5 text-muted-foreground" />

@@ -79,25 +79,52 @@
   }
 
   .dark {
-    --background: 220 15% 8%;
-    --foreground: 0 0% 95%;
-    --card: 220 15% 12%;
-    --card-foreground: 0 0% 95%;
-    --popover: 220 15% 12%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 262 83% 65%;
+    /* Odoo Dark Mode Theme - Dark Slate / Charcoal */
+    --background: 215 15% 14%; /* #1E2329 Dark Slate */
+    --foreground: 0 0% 92%; /* #EAEAEA Soft White */
+    
+    --card: 217 15% 20%; /* #2B303B Lighter Charcoal */
+    --card-foreground: 0 0% 92%;
+    
+    --popover: 217 15% 20%;
+    --popover-foreground: 0 0% 92%;
+    
+    --primary: 262 83% 70%; /* Lighter purple for dark mode visibility */
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 0 0% 90%;
-    --muted: 220 15% 18%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 262 40% 25%;
-    --accent-foreground: 262 83% 75%;
-    --destructive: 0 62% 50%;
+    
+    --secondary: 215 15% 25%;
+    --secondary-foreground: 0 0% 95%;
+    
+    --muted: 215 15% 25%;
+    --muted-foreground: 215 10% 65%;
+    
+    --accent: 262 40% 30%;
+    --accent-foreground: 262 83% 85%;
+    
+    --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 262 83% 65%;
+    
+    --border: 215 15% 25%;
+    --input: 215 15% 25%;
+    --ring: 262 83% 70%;
+
+    /* Adjust status colors for dark mode to be less harsh but visible */
+    --status-free: 142 60% 45%;
+    --status-free-bg: 142 30% 20%;
+    --status-occupied: 45 90% 40%;
+    --status-occupied-bg: 45 30% 20%;
+    --status-pending: 0 60% 60%;
+    --status-pending-bg: 0 30% 20%;
+
+    /* Sidebar specific dark mode */
+    --sidebar-background: 215 15% 12%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 262 83% 70%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 40% 30%;
+    --sidebar-accent-foreground: 262 83% 85%;
+    --sidebar-border: 215 15% 20%;
+    --sidebar-ring: 262 83% 70%;
   }
 }
 

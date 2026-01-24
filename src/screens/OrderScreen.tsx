@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { usePOS } from '@/context/POSContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { ProductCard } from '@/components/pos/ProductCard';
 import { OrderItemRow } from '@/components/pos/OrderItemRow';
 import { products, categories } from '@/data/products';
 import { Button } from '@/components/ui/button';
-import { 
-  ShoppingBag, 
-  Send, 
-  CreditCard, 
-  Trash2, 
+import {
+  ShoppingBag,
+  Send,
+  CreditCard,
+  Trash2,
   ArrowLeft,
   Search,
   X
@@ -30,7 +31,8 @@ export const OrderScreen = () => {
     setCurrentScreen,
     updateTableStatus,
   } = usePOS();
-  
+
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCart, setShowCart] = useState(false);
@@ -42,6 +44,10 @@ export const OrderScreen = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const allCategoriesLabel = t('allCategories');
+  // Temporary fix to update the "All" category label dynamically if needed
+  // Alternatively, handle rendering logic in the map below
+
   const handleSendToKitchen = () => {
     if (!selectedTable) {
       toast({
@@ -52,7 +58,7 @@ export const OrderScreen = () => {
       setCurrentScreen('floor');
       return;
     }
-    
+
     sendToKitchen();
     toast({
       title: 'Order sent to kitchen!',
@@ -70,7 +76,7 @@ export const OrderScreen = () => {
       });
       return;
     }
-    
+
     if (currentOrder.length === 0) {
       toast({
         title: 'Empty order',
@@ -79,7 +85,7 @@ export const OrderScreen = () => {
       });
       return;
     }
-    
+
     updateTableStatus(selectedTable.id, 'pending');
     setCurrentScreen('payment');
   };
@@ -108,7 +114,7 @@ export const OrderScreen = () => {
               </h1>
               {selectedTable && (
                 <p className="text-sm text-muted-foreground">
-                  Table {selectedTable.number} • {selectedTable.seats} seats
+                  {t('table')} {selectedTable.number} • {selectedTable.seats} {t('guests')}
                 </p>
               )}
             </div>
@@ -117,7 +123,7 @@ export const OrderScreen = () => {
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search menu..."
+              placeholder={t('searchProducts')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -135,7 +141,7 @@ export const OrderScreen = () => {
               className="whitespace-nowrap touch-btn"
             >
               <span className="mr-2">{cat.icon}</span>
-              {cat.name}
+              {cat.id === 'all' ? t('allCategories') : cat.name}
             </Button>
           ))}
         </div>
@@ -160,7 +166,7 @@ export const OrderScreen = () => {
             className="lg:hidden fixed bottom-4 right-4 z-40 bg-primary text-primary-foreground px-6 py-4 rounded-2xl shadow-lg flex items-center gap-3"
           >
             <ShoppingBag className="w-5 h-5" />
-            <span className="font-semibold">{itemCount} items</span>
+            <span className="font-semibold">{itemCount} {t('items')}</span>
             <span className="font-bold">₹{total}</span>
           </button>
         )}
@@ -189,7 +195,7 @@ export const OrderScreen = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="font-bold text-lg">Your Order</h2>
+              <h2 className="font-bold text-lg">{t('orders')}</h2>
               <button onClick={() => setShowCart(false)} className="p-2 hover:bg-secondary rounded-lg">
                 <X className="w-5 h-5" />
               </button>
@@ -243,6 +249,7 @@ const CartContent = ({
   onProceedToPayment,
   selectedTable,
 }: CartContentProps) => {
+  const { t } = useLanguage();
   return (
     <>
       <div className="p-4 border-b border-border">
@@ -256,13 +263,13 @@ const CartContent = ({
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="w-4 h-4 mr-1" />
-              Clear
+              {t('cancel')}
             </Button>
           )}
         </div>
         {selectedTable && (
           <p className="text-sm text-muted-foreground">
-            Table {selectedTable.number}
+            {t('table')} {selectedTable.number}
           </p>
         )}
       </div>
@@ -271,8 +278,8 @@ const CartContent = ({
         {currentOrder.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>Cart is empty</p>
-            <p className="text-sm">Add items from the menu</p>
+            <p>{t('orderEmpty')}</p>
+            <p className="text-sm">{t('searchProducts')}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -291,15 +298,15 @@ const CartContent = ({
       <div className="p-4 border-t border-border space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
+            <span className="text-muted-foreground">{t('subtotal')}</span>
             <span>₹{total}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Tax (5%)</span>
+            <span className="text-muted-foreground">{t('tax')} (5%)</span>
             <span>₹{Math.round(total * 0.05)}</span>
           </div>
           <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
-            <span>Total</span>
+            <span>{t('total')}</span>
             <span className="text-primary">₹{Math.round(total * 1.05)}</span>
           </div>
         </div>
@@ -312,7 +319,7 @@ const CartContent = ({
             className="touch-btn"
           >
             <Send className="w-4 h-4 mr-2" />
-            Send to Kitchen
+            {t('sendToKitchen')}
           </Button>
           <Button
             onClick={onProceedToPayment}
@@ -320,7 +327,7 @@ const CartContent = ({
             className="touch-btn"
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            Payment
+            {t('payment')}
           </Button>
         </div>
       </div>
