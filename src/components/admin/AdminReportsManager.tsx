@@ -44,59 +44,62 @@ export const AdminReportsManager = () => {
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
+                <Card className="border-none shadow-md bg-primary/5">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                        <IndianRupee className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Branch Revenue</CardTitle>
+                        <IndianRupee className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">₹{stats.totalSales.toLocaleString()}</div>
-                        <p className="text-xs text-muted-foreground">+20.1% from last period</p>
+                        <div className="text-3xl font-black text-foreground">₹{stats.totalSales.toLocaleString()}</div>
+                        <p className="text-xs text-status-free font-bold mt-1">+12% from yesterday</p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="border-none shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                        <CardTitle className="text-sm font-medium">Operational Orders</CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.totalOrders}</div>
-                        <p className="text-xs text-muted-foreground">+10.5% from last period</p>
+                        <div className="text-3xl font-black text-foreground">{stats.totalOrders}</div>
+                        <p className="text-xs text-muted-foreground mt-1">Daily volume</p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="border-none shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Active Tables</CardTitle>
+                        <CardTitle className="text-sm font-medium">Table Occupancy</CardTitle>
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{stats.activeTables}</div>
-                        <p className="text-xs text-muted-foreground">Current occupancy</p>
+                        <div className="text-3xl font-black text-foreground">{stats.activeTables}</div>
+                        <p className="text-xs text-muted-foreground mt-1">Live customers</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Staff Performance */}
-            <Card className="col-span-3">
+            <Card className="border-none shadow-md">
                 <CardHeader>
-                    <CardTitle>Staff Performance</CardTitle>
+                    <CardTitle className="text-lg font-bold">Staff Performance Leaderboard</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        {staffSales.map(staff => (
-                            <div key={staff.id} className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors">
+                    <div className="space-y-3">
+                        {staffSales.map((staff, i) => (
+                            <div key={staff.id} className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 border border-border/50 hover:bg-secondary/50 transition-colors">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                                        {staff.name.charAt(0)}
+                                    <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center font-black text-primary text-xl">
+                                        {i + 1}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-foreground">{staff.name}</p>
-                                        <p className="text-sm text-muted-foreground">{staff.orders} Orders Processed</p>
+                                        <p className="font-bold text-foreground">{staff.name}</p>
+                                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-tight">{staff.orders} Orders Processed</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-lg">₹{staff.sales.toLocaleString()}</p>
-                                    <p className="text-xs text-green-600 font-medium">Excellent</p>
+                                    <p className="font-black text-xl text-primary">₹{staff.sales.toLocaleString()}</p>
+                                    <div className="flex items-center justify-end gap-1 text-[10px] font-bold text-status-free">
+                                        <TrendingUp className="w-3 h-3" />
+                                        <span>EXCELLENT</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}

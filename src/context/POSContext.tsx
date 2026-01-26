@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 import { Table, Order, OrderItem, Product, Session, KDSTicket, TableStatus, Floor } from '@/types/pos';
 import { BASE_URL } from '@/lib/api';
 
@@ -37,6 +38,7 @@ const POSContext = createContext<POSContextType | undefined>(undefined);
 export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [session, setSession] = useState<Session | null>(null);
   const [floors, setFloors] = useState<Floor[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -49,7 +51,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch floors from backend
   const fetchFloors = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/pos/floors', {
+      const response = await fetch(`${BASE_URL}/api/pos/floors`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -77,7 +79,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/pos/products', {
+      const response = await fetch(`${BASE_URL}/api/pos/products`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -104,31 +106,73 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch KDS Tickets (Active Orders)
   const fetchKDSTickets = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/orders?status=active', { // Need to ensure API supports this
+      const response = await fetch(`${BASE_URL}/api/orders/all`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (response.ok) {
         const data = await response.json();
-        const tickets: KDSTicket[] = data.map((order: any) => ({
-          orderId: order.id,
-          tableNumber: order.tableNumber || '?',
-          items: order.items.map((item: any) => ({
-            product: { id: item.product, name: item.name, price: item.price },
-            quantity: item.quantity
-          })),
-          status: order.kitchenStatus || 'to-cook',
-          createdAt: new Date(order.createdAt),
-          startedAt: order.startedAt,
-          completedAt: order.completedAt,
-          lockedBy: order.lockedBy
-        }));
+        // Only show orders that are actually in progress or ready
+        const activeOrders = data.filter((o: any) =>
+          ['running', 'preparing', 'ready', 'in-kitchen'].includes(o.status)
+        );
+
+        const tickets: KDSTicket[] = activeOrders.map((order: any) => {
+          const dbId = (order.id || order._id).toString();
+          return {
+            orderId: dbId,
+            // Format for display to match user's screenshot
+            ticketNumber: `ORD-${dbId.padStart(4, '0')}`,
+            tableNumber: order.tableNumber || '?',
+            items: order.items.map((item: any) => ({
+              product: {
+                id: item.productId || item.product,
+                name: item.Product?.name || item.name || 'Item',
+                price: item.price
+              },
+              quantity: item.quantity
+            })),
+            status: order.status === 'preparing' ? 'preparing' :
+              (order.status === 'ready') ? 'completed' : 'to-cook',
+            createdAt: new Date(order.createdAt),
+            startedAt: order.startedAt,
+            completedAt: order.completedAt,
+            lockedBy: order.lockedBy
+          };
+        });
         setKdsTickets(tickets);
-        // Also update orders state if needed, or keep them separate
-        // setOrders(data); // If this overwrites local state negatively, be careful. 
-        // Better to have separate sync for "My Orders" vs "All Orders" or just use KDS for kitchen.
+      } else {
+        const errorText = await response.text();
+        console.error("KDS Fetch Error:", response.status, errorText);
       }
     } catch (error) {
-      console.error("Failed to fetch KDS tickets");
+      console.error("Failed to fetch KDS tickets", error);
+    }
+  }, []);
+
+  const checkActiveSession = useCallback(async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/sessions`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          const sessionId = data.id || data._id;
+          setSession({
+            id: sessionId,
+            openedAt: new Date(data.startTime),
+            cashier: data.cashierName || 'Staff User',
+            openingBalance: parseFloat(data.openingBalance),
+            totalSales: data.totalSales || 0,
+            ordersCount: data.ordersCount || 0,
+          });
+          localStorage.setItem('activeSession', JSON.stringify({ ...data, id: sessionId }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check active session:', error);
     }
   }, []);
 
@@ -138,14 +182,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       fetchFloors();
       fetchProducts();
       fetchKDSTickets();
+      checkActiveSession();
 
-      const interval = setInterval(() => {
-        fetchKDSTickets();
-      }, 5000);
-
-      return () => clearInterval(interval);
+      const kdsInterval = setInterval(fetchKDSTickets, 5000);
+      return () => clearInterval(kdsInterval);
     }
-  }, [fetchFloors, fetchProducts, fetchKDSTickets]);
+  }, [fetchFloors, fetchProducts, fetchKDSTickets, checkActiveSession]);
 
   const currentScreen = location.pathname.split('/').pop() || 'dashboard';
 
@@ -155,7 +197,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const openSession = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/sessions/open', {
+      const response = await fetch(`${BASE_URL}/api/sessions/open`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,36 +208,51 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       if (response.ok) {
         const data = await response.json();
+        const sessionId = data.id || data._id;
         setSession({
-          id: data.id,
-          openedAt: new Date(data.openedAt),
+          id: sessionId,
+          openedAt: new Date(data.startTime),
           cashier: data.cashierName || 'Staff User',
-          openingBalance: data.openingBalance,
+          openingBalance: parseFloat(data.openingBalance),
           totalSales: 0,
           ordersCount: 0,
         });
-        localStorage.setItem('activeSession', JSON.stringify(data));
+        localStorage.setItem('activeSession', JSON.stringify({ ...data, id: sessionId }));
+        toast({ title: "Session Opened", description: "Terminal is now active." });
         navigate('/pos/floor');
+      } else {
+        const err = await response.json();
+        if (err.message?.includes('already have an active session')) {
+          // Auto-recovery: Sync State
+          checkActiveSession();
+          toast({ title: "Session Resumed", description: "You already have an active session." });
+        } else {
+          toast({ title: "Failed to Open Session", description: err.message || "Unknown error", variant: "destructive" });
+        }
       }
     } catch (error) {
       console.error('Failed to open session:', error);
     }
-  }, [navigate]);
+  }, [navigate, checkActiveSession, toast]);
 
   const restoreSession = useCallback(() => {
     const saved = localStorage.getItem('activeSession');
     if (saved) {
       const data = JSON.parse(saved);
+      const sessionId = data.id || data._id;
       setSession({
-        id: data.id,
-        openedAt: new Date(data.openedAt),
+        id: sessionId,
+        openedAt: new Date(data.startTime || data.openedAt),
         cashier: data.cashierName || 'Staff User',
-        openingBalance: data.openingBalance,
+        openingBalance: parseFloat(data.openingBalance),
         totalSales: data.totalSales || 0,
         ordersCount: data.ordersCount || 0,
       });
+    } else {
+      // If no local storage, ask server anyway
+      checkActiveSession();
     }
-  }, []);
+  }, [checkActiveSession]);
 
   useEffect(() => {
     restoreSession();
@@ -204,7 +261,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const closeSession = useCallback(async () => {
     if (session) {
       try {
-        await fetch(`http://localhost:5000/api/sessions/${session.id}/close`, {
+        await fetch(`${BASE_URL}/api/sessions/${session.id}/close`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
@@ -229,7 +286,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateTableStatus = useCallback(async (tableId: string, status: TableStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/pos/tables/${tableId}`, {
+      const response = await fetch(`${BASE_URL}/api/pos/tables/${tableId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -311,17 +368,22 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Save to database
     try {
-      const response = await fetch('http://localhost:5000/api/orders', {
+      if (!session?.id) {
+        toast({ title: "No Session", description: "Please open a session before ordering.", variant: "destructive" });
+        return;
+      }
+
+      const response = await fetch(`${BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          tableId: selectedTable.id,
-          sessionId: "6793910c6600a9435b674b88", // Hardcoded fallback or real ID if available
+          tableId: parseInt(selectedTable.id.toString()),
+          sessionId: parseInt(session.id.toString()),
           items: currentOrder.map(item => ({
-            product: item.product.id,
+            product: parseInt((item.product.id || (item.product as any)._id).toString()),
             name: item.product.name,
             price: item.product.price,
             quantity: item.quantity
@@ -334,8 +396,9 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       if (response.ok) {
         const savedOrder = await response.json();
+        const dbId = (savedOrder.id || savedOrder._id).toString();
         const newOrder: Order = {
-          id: savedOrder._id,
+          id: dbId,
           tableId: selectedTable.id,
           tableNumber: selectedTable.number,
           items: [...currentOrder],
@@ -345,13 +408,30 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           total: total + tax,
         };
         setOrders(prev => [...prev, newOrder]);
-      }
-    } catch (error) {
-      console.error('Failed to save order:', error);
-    }
 
-    clearOrder();
-  }, [selectedTable, currentOrder, orderCounter, updateTableStatus, getOrderTotal, clearOrder]);
+        // Update the local ticket with the real ID
+        setKdsTickets(prev => prev.map(t =>
+          t.orderId === orderId ? {
+            ...t,
+            orderId: dbId,
+            ticketNumber: `ORD-${dbId.padStart(4, '0')}`
+          } : t
+        ));
+
+        toast({ title: "Sent to Kitchen", description: `Order ${dbId} created successfully.` });
+        clearOrder();
+      } else {
+        const err = await response.json();
+        toast({ title: "Order Failed", description: err.message || "Could not save order to database.", variant: "destructive" });
+        // Rollback local ticket
+        setKdsTickets(prev => prev.filter(t => t.orderId !== orderId));
+      }
+    } catch (error: any) {
+      console.error('Failed to save order:', error);
+      toast({ title: "Network Error", description: error.message, variant: "destructive" });
+      setKdsTickets(prev => prev.filter(t => t.orderId !== orderId));
+    }
+  }, [selectedTable, currentOrder, orderCounter, updateTableStatus, getOrderTotal, clearOrder, session, toast]);
 
   const updateKDSStatus = useCallback(async (orderId: string, status: KDSTicket['status']) => {
     // Optimistic update
@@ -376,7 +456,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (status === 'preparing') kitchenStatus = 'cooking';
       if (status === 'completed') kitchenStatus = 'ready';
 
-      await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      await fetch(`${BASE_URL}/api/orders/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -396,7 +476,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const tableOrder = orders.find(o => o.tableId === selectedTable.id && o.status !== 'paid');
     if (tableOrder) {
       try {
-        const response = await fetch(`http://localhost:5000/api/orders/${tableOrder.id}/pay`, {
+        const response = await fetch(`${BASE_URL}/api/orders/${tableOrder.id}/pay`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

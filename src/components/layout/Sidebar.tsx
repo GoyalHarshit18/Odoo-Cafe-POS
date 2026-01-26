@@ -6,7 +6,6 @@ import {
   ChefHat,
   Monitor,
   BarChart3,
-  Settings,
   LogOut,
   ShieldCheck,
   Menu,
@@ -92,16 +91,6 @@ export const Sidebar = () => {
       </nav>
 
       <div className="p-3 border-t border-sidebar-border space-y-1">
-        <button
-          className={cn(
-            'w-full flex items-center gap-3 px-3 py-3 rounded-xl',
-            'text-sidebar-foreground hover:bg-sidebar-accent transition-colors touch-btn'
-          )}
-        >
-          <Settings className="w-5 h-5" />
-          {!collapsed && <span className="font-medium">{t('settings')}</span>}
-        </button>
-
         <button
           onClick={handleLogout}
           className={cn(

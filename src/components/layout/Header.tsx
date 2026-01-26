@@ -1,5 +1,5 @@
 import { usePOS } from '@/context/POSContext';
-import { Bell, User, Clock } from 'lucide-react';
+import { User, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { ThemeToggle } from '../ThemeToggle';
@@ -47,11 +47,6 @@ export const Header = () => {
         </div>
 
         <ThemeToggle />
-
-        <button className="relative p-2 hover:bg-accent rounded-lg transition-colors">
-          <Bell className="w-5 h-5 text-muted-foreground" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-        </button>
 
         <button className="flex items-center gap-2 p-2 hover:bg-accent rounded-lg transition-colors">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">

@@ -17,7 +17,7 @@ export interface Floor {
   tables: Table[];
 }
 
-export type ProductCategory = 'pizza' | 'burgers' | 'pasta' | 'sides' | 'beverages' | 'desserts';
+export type ProductCategory = 'Food' | 'Beverages' | 'Desserts';
 
 export interface Product {
   id: string;

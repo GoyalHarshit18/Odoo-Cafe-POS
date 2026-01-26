@@ -67,7 +67,11 @@ export const LoginPage = () => {
         description: isLogin ? 'Successfully logged in.' : 'Account created successfully.',
       });
 
-      navigate('/pos');
+      if (data.role === 'kitchen') {
+        navigate('/kitchen-display');
+      } else {
+        navigate('/pos');
+      }
     } catch (error: any) {
       toast({
         title: 'Authentication Error',
@@ -187,7 +191,7 @@ export const LoginPage = () => {
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Want to register your restaurant?{' '}
             <button
-              onClick={() => navigate('/admin/signup')}
+              onClick={() => window.open('https://odoocafe.com/register', '_blank')}
               className="text-primary font-medium hover:underline"
             >
               Become a Partner

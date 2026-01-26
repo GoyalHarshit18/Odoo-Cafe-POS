@@ -1,11 +1,12 @@
 import { KDSTicket } from '@/types/pos';
-import { Clock, ChefHat, CheckCircle } from 'lucide-react';
+import { Clock, ChefHat, CheckCircle, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
 interface KDSTicketCardProps {
   ticket: KDSTicket;
-  onStatusChange: (status: KDSTicket['status']) => void;
+  onStatusChange?: (status: KDSTicket['status']) => void;
+  readOnly?: boolean;
 }
 
 const statusButtons = {
@@ -14,7 +15,7 @@ const statusButtons = {
   'completed': null,
 };
 
-export const KDSTicketCard = ({ ticket, onStatusChange }: KDSTicketCardProps) => {
+export const KDSTicketCard = ({ ticket, onStatusChange, readOnly }: KDSTicketCardProps) => {
   const elapsed = formatDistanceToNow(ticket.createdAt, { addSuffix: false });
   const nextAction = statusButtons[ticket.status];
 
@@ -38,6 +39,13 @@ export const KDSTicketCard = ({ ticket, onStatusChange }: KDSTicketCardProps) =>
         </div>
       </div>
 
+      {ticket.lockedBy && (
+        <div className="flex items-center gap-2 mb-3 py-1 px-2 bg-primary/20 rounded-md border border-primary/30">
+          <Flame className="w-3 h-3 text-primary animate-pulse" />
+          <span className="text-[10px] font-bold text-primary uppercase text-white/90">Being Prepared</span>
+        </div>
+      )}
+
       <div className="space-y-2 mb-4">
         {ticket.items.map((item, idx) => (
           <div
@@ -55,9 +63,9 @@ export const KDSTicketCard = ({ ticket, onStatusChange }: KDSTicketCardProps) =>
         ))}
       </div>
 
-      {nextAction && (
+      {!readOnly && nextAction && (
         <button
-          onClick={() => onStatusChange(nextAction.next)}
+          onClick={() => onStatusChange?.(nextAction.next)}
           className={cn(
             'w-full py-3 rounded-lg font-medium transition-all duration-200',
             'flex items-center justify-center gap-2',

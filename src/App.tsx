@@ -19,6 +19,7 @@ import { FloorScreen } from '@/screens/FloorScreen';
 import { OrderScreen } from '@/screens/OrderScreen';
 import { PaymentSelectionScreen } from '@/screens/PaymentSelectionScreen';
 import { KitchenScreen } from '@/screens/KitchenScreen';
+import { KitchenStaffScreen } from '@/screens/KitchenStaffScreen';
 import { CustomerScreen } from '@/screens/CustomerScreen';
 import { ReportsScreen } from '@/screens/ReportsScreen';
 import { AdminDashboardScreen } from '@/screens/AdminDashboardScreen';
@@ -49,6 +50,11 @@ const App = () => (
                 <Route path="/admin/dashboard" element={<AdminDashboardScreen />} />
                 <Route path="/customer/login" element={<CustomerLoginPage />} />
                 <Route path="/customer/dashboard" element={<CustomerDashboardPage />} />
+                <Route path="/kitchen-display" element={
+                  <ProtectedRoute>
+                    <KitchenStaffScreen />
+                  </ProtectedRoute>
+                } />
 
                 <Route path="/pos" element={
                   <ProtectedRoute>

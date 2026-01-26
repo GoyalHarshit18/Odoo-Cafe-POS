@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import OrderItem from '../models/OrderItem.js';
 import Table from '../models/Table.js';
+import Product from '../models/Product.js';
 import sequelize from '../config/db.js';
 
 export const createOrder = async (req, res) => {
@@ -44,7 +45,7 @@ export const getOrders = async (req, res) => {
         const { status } = req.query;
         const whereClause = {};
         if (status === 'active') {
-            whereClause.status = ['running', 'in-kitchen', 'ready', 'served'];
+            whereClause.status = ['running', 'in-kitchen', 'preparing', 'ready', 'served'];
         } else if (status) {
             whereClause.status = status;
         }
@@ -52,7 +53,11 @@ export const getOrders = async (req, res) => {
         const orders = await Order.findAll({
             where: whereClause,
             include: [
-                { model: OrderItem, as: 'items' },
+                {
+                    model: OrderItem,
+                    as: 'items',
+                    include: [{ model: Product, as: 'Product' }]
+                },
                 { model: Table, attributes: ['number'] }
             ],
             order: [['createdAt', 'DESC']]
@@ -76,9 +81,26 @@ export const getOrders = async (req, res) => {
 export const updateOrder = async (req, res) => {
     try {
         const { orderId } = req.params;
+        const currentOrder = await Order.findByPk(orderId);
+
+        if (!currentOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Ownership Check: If order is locked, only the locker can update it
+        // Except if the locker is clearing the lock or if it's currently unlocked
+        if (currentOrder.lockedBy && req.body.lockedBy && currentOrder.lockedBy !== req.user.id) {
+            return res.status(403).json({ message: 'This order is currently being prepared by another staff member' });
+        }
+
+        // Similarly, if it's already locked and they try to update status without being the locker
+        if (currentOrder.lockedBy && currentOrder.lockedBy !== req.user.id && !req.body.lockedBy) {
+            return res.status(403).json({ message: 'This order is locked for preparation by another staff member' });
+        }
+
         await Order.update(req.body, { where: { id: orderId } });
-        const order = await Order.findByPk(orderId);
-        res.status(200).json(order);
+        const updatedOrder = await Order.findByPk(orderId);
+        res.status(200).json(updatedOrder);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

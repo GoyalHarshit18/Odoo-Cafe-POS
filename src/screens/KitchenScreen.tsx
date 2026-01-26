@@ -78,16 +78,7 @@ export const KitchenScreen = () => {
                   <KDSTicketCard
                     key={ticket.orderId}
                     ticket={ticket}
-                    onStatusChange={(status) => {
-                      // Logic to prevent editing if locked by someone else
-                      // Assuming current user ID is available in localStorage or Context
-                      const user = JSON.parse(localStorage.getItem('user') || '{}');
-                      if (ticket.status === 'preparing' && ticket.lockedBy && ticket.lockedBy !== user.id) {
-                        alert("This order is being prepared by another chef!");
-                        return;
-                      }
-                      updateKDSStatus(ticket.orderId, status);
-                    }}
+                    readOnly={true}
                   />
                 ))}
               </div>

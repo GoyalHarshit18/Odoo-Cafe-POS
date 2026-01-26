@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/', protect, createOrder);
 router.get('/', protect, getOrders);
+router.get('/all', protect, getOrders); // Support for robust kitchen dashboard
 router.get('/table/:tableId', protect, getOrderByTable);
 router.put('/:orderId', protect, updateOrder);
 router.post('/:orderId/pay', protect, processPayment);

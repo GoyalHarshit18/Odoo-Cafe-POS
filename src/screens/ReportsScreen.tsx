@@ -112,77 +112,65 @@ export const ReportsScreen = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           title="Total Revenue"
-          value={`₹${(totalRevenue || 95420).toLocaleString()}`}
+          value={`₹${totalRevenue.toLocaleString()}`}
           icon={DollarSign}
-          trend={{ value: 12.5, positive: true }}
         />
         <KPICard
           title="Total Orders"
-          value={paidOrders.length || 320}
+          value={paidOrders.length}
           icon={ShoppingBag}
-          trend={{ value: 8.2, positive: true }}
         />
         <KPICard
           title="Avg Order Value"
-          value={`₹${avgOrderValue || 298}`}
+          value={`₹${avgOrderValue}`}
           icon={TrendingUp}
-          trend={{ value: 3.1, positive: true }}
         />
         <KPICard
-          title="Customers Served"
-          value={paidOrders.length * 2 || 640}
+          title="Staff Activity"
+          value={session ? '1 Active' : 'Idle'}
           icon={Users}
-          trend={{ value: 15.3, positive: true }}
         />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Revenue Chart (simulated with bars) */}
-        <div className="pos-card p-6">
-          <h2 className="text-lg font-semibold mb-4">Hourly Revenue</h2>
-          <div className="space-y-3">
-            {hourlyData.map((data, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="w-12 text-sm text-muted-foreground">{data.hour}</span>
-                <div className="flex-1 h-6 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-500"
-                    style={{
-                      width: `${(data.revenue / maxRevenue) * 100}%`,
-                      animationDelay: `${i * 50}ms`,
-                    }}
-                  />
-                </div>
-                <span className="w-20 text-sm font-medium text-right">
-                  ₹{data.revenue.toLocaleString()}
-                </span>
-              </div>
-            ))}
+        {/* Sales Summary Card */}
+        <div className="pos-card p-6 flex flex-col justify-center">
+          <div className="text-center space-y-2">
+            <h2 className="text-muted-foreground font-medium uppercase tracking-wider text-xs">Today's Total Performance</h2>
+            <p className="text-5xl font-black text-primary">₹{totalRevenue.toLocaleString()}</p>
+            <div className="flex items-center justify-center gap-2 text-status-free font-bold">
+              <TrendingUp className="w-5 h-5" />
+              <span>+15% vs Yesterday</span>
+            </div>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-4">
+            <div className="bg-secondary/40 p-4 rounded-2xl text-center">
+              <p className="text-2xl font-bold text-foreground">{paidOrders.length}</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase">Sales</p>
+            </div>
+            <div className="bg-secondary/40 p-4 rounded-2xl text-center">
+              <p className="text-2xl font-bold text-foreground">{paidOrders.length > 0 ? (totalRevenue / paidOrders.length).toFixed(0) : 0}</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase">Avg Ticket</p>
+            </div>
           </div>
         </div>
 
         {/* Top Products */}
         <div className="pos-card p-6">
-          <h2 className="text-lg font-semibold mb-4">Top Selling Products</h2>
+          <h2 className="text-lg font-semibold mb-4">Top Selling Items</h2>
           <div className="space-y-4">
-            {topProducts.map((product, i) => (
+            {topProducts.slice(0, 4).map((product, i) => (
               <div key={i} className="flex items-center justify-between animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
                 <div className="flex items-center gap-3">
-                  <span className={cn(
-                    'w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm',
-                    i === 0 ? 'bg-warm-amber/20 text-warm-amber' :
-                    i === 1 ? 'bg-muted text-muted-foreground' :
-                    i === 2 ? 'bg-warm-amber/10 text-warm-amber/70' :
-                    'bg-secondary text-muted-foreground'
-                  )}>
-                    #{i + 1}
-                  </span>
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-bold text-primary">
+                    {i + 1}
+                  </div>
                   <div>
                     <p className="font-medium">{product.name}</p>
                     <p className="text-sm text-muted-foreground">{product.quantity} sold</p>
                   </div>
                 </div>
-                <span className="font-bold text-primary">₹{product.revenue.toLocaleString()}</span>
+                <span className="font-bold text-foreground">₹{product.revenue.toLocaleString()}</span>
               </div>
             ))}
           </div>

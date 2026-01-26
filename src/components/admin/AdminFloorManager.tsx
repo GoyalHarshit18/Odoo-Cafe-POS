@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Trash2, LayoutTemplate } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TableCard } from '../pos/TableCard';
 
 export const AdminFloorManager = () => {
     const { toast } = useToast();
@@ -152,8 +153,17 @@ export const AdminFloorManager = () => {
                         <CardContent>
                             <div className="min-h-[100px] border-2 border-dashed border-muted rounded-lg p-4 flex flex-wrap gap-2 content-start">
                                 {floor.tables && floor.tables.map((table: any) => (
-                                    <div key={table.id} className="w-12 h-12 bg-secondary rounded-md flex items-center justify-center border border-border">
-                                        <span className="font-bold text-sm">{table.number}</span>
+                                    <div key={table.id} className="w-32">
+                                        <TableCard
+                                            table={{
+                                                id: table.id,
+                                                number: table.number,
+                                                seats: table.seats,
+                                                status: table.status || 'free',
+                                                floor: floor.id
+                                            }}
+                                            onClick={() => { }} // Admin view might not need click on table cards here
+                                        />
                                     </div>
                                 ))}
                                 <Button

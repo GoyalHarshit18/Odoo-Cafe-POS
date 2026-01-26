@@ -4,6 +4,7 @@ import { LogOut, RefreshCw, ChefHat, Play, CheckCircle2, ListChecks, Flame, Cloc
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { BASE_URL } from '@/lib/api';
 
 interface OrderItem {
     id: string;
@@ -20,6 +21,7 @@ interface Order {
     status: 'draft' | 'running' | 'paid' | 'cancelled' | 'in-kitchen' | 'preparing' | 'ready' | 'completed';
     items: OrderItem[];
     createdAt: string;
+    lockedBy?: number | null;
 }
 
 export const KitchenStaffScreen = () => {
@@ -27,6 +29,8 @@ export const KitchenStaffScreen = () => {
     const navigate = useNavigate();
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
     const fetchOrders = useCallback(async () => {
         setIsLoading(true);
@@ -37,7 +41,7 @@ export const KitchenStaffScreen = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:5000/api/orders/all', {
+            const response = await fetch(`${BASE_URL}/api/orders/all`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -46,21 +50,29 @@ export const KitchenStaffScreen = () => {
             if (response.ok) {
                 const data = await response.json();
                 const mappedOrders = data
-                    .filter((o: any) => ['running', 'in-kitchen', 'preparing', 'ready', 'completed'].includes(o.status))
-                    .map((o: any) => ({
-                        id: o.id,
-                        ticketNumber: o.id.substring(0, 8).toUpperCase(),
-                        tableNumber: o.Table?.number,
-                        time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                        status: o.status,
-                        items: o.items.map((i: any) => ({
-                            id: i.id,
-                            name: i.Product?.name || i.name,
-                            quantity: i.quantity,
-                        })),
-                        createdAt: o.createdAt
-                    }));
+                    .filter((o: any) => ['running', 'in-kitchen', 'preparing', 'ready'].includes(o.status))
+                    .map((o: any) => {
+                        const orderId = o.id || o._id;
+                        return {
+                            id: orderId.toString(),
+                            ticketNumber: `ORD-${orderId.toString().padStart(4, '0')}`, // Consistent with ORD-XXXX
+                            tableNumber: o.Table?.number,
+                            time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            status: o.status,
+                            items: o.items.map((i: any) => ({
+                                id: i.id || i._id,
+                                name: i.Product?.name || i.name,
+                                quantity: i.quantity,
+                            })),
+                            createdAt: o.createdAt,
+                            lockedBy: o.lockedBy
+                        };
+                    });
                 setOrders(mappedOrders);
+            } else {
+                console.error('Fetch Orders Status:', response.status);
+                const errorText = await response.text();
+                console.error('Fetch Orders Error Body:', errorText);
             }
         } catch (error) {
             console.error('Failed to fetch orders', error);
@@ -81,21 +93,27 @@ export const KitchenStaffScreen = () => {
         navigate('/login');
     };
 
-    const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    const updateOrderStatus = async (orderId: string, newStatus: string, lockedByValue?: number | null) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+            const body: any = { status: newStatus };
+            if (lockedByValue !== undefined) body.lockedBy = lockedByValue;
+
+            const response = await fetch(`${BASE_URL}/api/orders/${orderId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify(body)
             });
 
             if (response.ok) {
                 toast({ title: "Status Updated", description: `Order moved to ${newStatus}` });
                 fetchOrders();
+            } else {
+                const err = await response.json();
+                toast({ title: "Action Denied", description: err.message, variant: "destructive" });
             }
         } catch (error) {
             console.error('Update failed', error);
@@ -107,12 +125,17 @@ export const KitchenStaffScreen = () => {
         if (!order) return;
 
         let nextStatus = '';
-        if (['running', 'in-kitchen', 'draft'].includes(order.status)) nextStatus = 'preparing';
+        let nextLockedBy = order.lockedBy;
+
+        if (['running', 'in-kitchen', 'draft'].includes(order.status)) {
+            nextStatus = 'preparing';
+            nextLockedBy = currentUser._id; // Lock it to me
+        }
         else if (order.status === 'preparing') nextStatus = 'ready';
         else if (order.status === 'ready') nextStatus = 'completed';
 
         if (nextStatus) {
-            updateOrderStatus(orderId, nextStatus);
+            updateOrderStatus(orderId, nextStatus, nextLockedBy);
         }
     };
 
@@ -185,6 +208,7 @@ export const KitchenStaffScreen = () => {
                         actionLabel="START PREPARING"
                         actionIcon={<Play className="w-4 h-4 fill-current" />}
                         headerClass="bg-warm-amber/10 text-warm-amber border-warm-amber/20"
+                        currentUser={currentUser}
                     />
                     <Column
                         title="PREPARING"
@@ -196,6 +220,7 @@ export const KitchenStaffScreen = () => {
                         actionLabel="MARK READY"
                         actionIcon={<CheckCircle2 className="w-4 h-4" />}
                         headerClass="bg-primary/10 text-primary border-primary/20"
+                        currentUser={currentUser}
                     />
                     <Column
                         title="READY"
@@ -207,6 +232,7 @@ export const KitchenStaffScreen = () => {
                         actionLabel="COMPLETE"
                         actionIcon={<CheckCircle2 className="w-4 h-4" />}
                         headerClass="bg-status-free/10 text-status-free border-status-free/20"
+                        currentUser={currentUser}
                     />
                 </div>
             </main>
@@ -224,9 +250,10 @@ interface ColumnProps {
     actionLabel: string;
     actionIcon: React.ReactNode;
     headerClass: string;
+    currentUser: any;
 }
 
-const Column = ({ title, orders, icon, onAction, onToggleItem, accent, actionLabel, actionIcon, headerClass }: ColumnProps) => {
+const Column = ({ title, orders, icon, onAction, onToggleItem, accent, actionLabel, actionIcon, headerClass, currentUser }: ColumnProps) => {
     return (
         <div className="flex flex-col h-full bg-card rounded-2xl border border-border shadow-sm overflow-hidden text-card-foreground">
             <div className={cn("p-5 flex items-center justify-between border-b border-border", headerClass)}>
@@ -248,16 +275,23 @@ const Column = ({ title, orders, icon, onAction, onToggleItem, accent, actionLab
                 ) : (
                     orders.map(order => (
                         <div key={order.id} className="bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all overflow-hidden">
-                            <div className="p-4 border-b border-border flex items-center justify-between">
+                            <div className="p-4 border-b border-border flex items-center justify-between transition-colors">
                                 <div>
                                     <div className="text-lg font-bold text-primary">{order.ticketNumber}</div>
                                     <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-tight">{order.time}</div>
                                 </div>
-                                {order.tableNumber && (
-                                    <div className="bg-primary/10 text-primary px-3 py-1 rounded-lg text-sm font-bold">
-                                        Table {order.tableNumber}
-                                    </div>
-                                )}
+                                <div className="flex flex-col items-end gap-1">
+                                    {order.tableNumber && (
+                                        <div className="bg-primary/10 text-primary px-3 py-1 rounded-lg text-sm font-bold">
+                                            Table {order.tableNumber}
+                                        </div>
+                                    )}
+                                    {order.lockedBy && String(order.lockedBy) !== String(currentUser?._id) && (
+                                        <span className="text-[9px] font-black bg-red-500 text-white px-2 py-0.5 rounded uppercase animate-pulse">
+                                            Locked by other
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="p-4 space-y-2">
@@ -287,13 +321,14 @@ const Column = ({ title, orders, icon, onAction, onToggleItem, accent, actionLab
                             <div className="px-4 pb-4">
                                 <Button
                                     onClick={() => onAction(order.id)}
+                                    disabled={!!order.lockedBy && String(order.lockedBy) !== String(currentUser?._id)}
                                     className={cn(
                                         "w-full h-11 rounded-xl font-bold text-xs tracking-widest gap-2 shadow-sm transition-transform active:scale-95 text-white border-none",
-                                        accent
+                                        !!order.lockedBy && String(order.lockedBy) !== String(currentUser?._id) ? "bg-slate-300 cursor-not-allowed" : accent
                                     )}
                                 >
-                                    {actionIcon}
-                                    {actionLabel}
+                                    {!!order.lockedBy && String(order.lockedBy) !== String(currentUser?._id) ? <Clock className="w-4 h-4" /> : actionIcon}
+                                    {!!order.lockedBy && String(order.lockedBy) !== String(currentUser?._id) ? "BEING PREPARED" : actionLabel}
                                 </Button>
                             </div>
                         </div>
