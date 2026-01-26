@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 
-const Branch = sequelize.define('Branch', {
+const Customer = sequelize.define('Customer', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -11,27 +11,26 @@ const Branch = sequelize.define('Branch', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    address: {
-        type: DataTypes.TEXT
-    },
     phone: {
-        type: DataTypes.STRING
-    },
-    email: { // Contact email for the branch/restaurant
         type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    otp: {
+        type: DataTypes.STRING,
+        allowNull: true // Store hashed OTP temporarily or just usage logs
+    },
+    otpExpires: {
+        type: DataTypes.DATE,
         allowNull: true
     },
-    adminName: { // Contact person name
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    isActive: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true
+    points: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     }
 }, {
     timestamps: true,
-    tableName: 'branches'
+    tableName: 'customers'
 });
 
-export default Branch;
+export default Customer;

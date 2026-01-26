@@ -8,6 +8,8 @@ import branchRoutes from './routes/branch.routes.js';
 import posRoutes from './routes/pos.routes.js';
 import sessionRoutes from './routes/session.routes.js';
 import orderRoutes from './routes/order.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import customerRoutes from './routes/customer.routes.js';
 
 dotenv.config();
 
@@ -23,6 +25,8 @@ app.use('/api/branches', branchRoutes);
 app.use('/api/pos', posRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/customer', customerRoutes);
 
 const PORT = process.env.PORT || 5000;
 

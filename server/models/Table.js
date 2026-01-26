@@ -27,13 +27,21 @@ const Table = sequelize.define('Table', {
             model: Floor,
             key: 'id'
         }
+    },
+    branchId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'branches',
+            key: 'id'
+        }
     }
 }, {
     timestamps: true,
     tableName: 'pos_tables'
 });
 
-Floor.hasMany(Table, { foreignKey: 'floorId', onDelete: 'CASCADE' });
-Table.belongsTo(Floor, { foreignKey: 'floorId' });
+Floor.hasMany(Table, { as: 'tables', foreignKey: 'floorId', onDelete: 'CASCADE' });
+Table.belongsTo(Floor, { as: 'floor', foreignKey: 'floorId' });
 
 export default Table;

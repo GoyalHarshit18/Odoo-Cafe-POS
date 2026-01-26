@@ -69,4 +69,5 @@ export interface KDSTicket {
   createdAt: Date;
   startedAt?: Date;
   completedAt?: Date;
+  lockedBy?: string | number; // User ID
 }

@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 import Table from './Table.js';
 import Session from './Session.js';
+import Customer from './Customer.js';
 
 const Order = sequelize.define('Order', {
     id: {
@@ -48,6 +49,34 @@ const Order = sequelize.define('Order', {
     },
     paidAt: {
         type: DataTypes.DATE
+    },
+    branchId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'branches',
+            key: 'id'
+        }
+    },
+    customerId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: Customer,
+            key: 'id'
+        }
+    },
+    kitchenStatus: {
+        type: DataTypes.ENUM('pending', 'cooking', 'ready', 'served'),
+        defaultValue: 'pending'
+    },
+    lockedBy: { // Kitchen staff user ID who is cooking this
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'users',
+            key: 'id'
+        }
     }
 }, {
     timestamps: true,
@@ -56,6 +85,12 @@ const Order = sequelize.define('Order', {
 
 Table.hasMany(Order, { foreignKey: 'tableId' });
 Order.belongsTo(Table, { foreignKey: 'tableId' });
+
+Session.hasMany(Order, { foreignKey: 'sessionId' });
+Order.belongsTo(Session, { foreignKey: 'sessionId' });
+
+Customer.hasMany(Order, { foreignKey: 'customerId' });
+Order.belongsTo(Customer, { foreignKey: 'customerId' });
 
 Session.hasMany(Order, { foreignKey: 'sessionId' });
 Order.belongsTo(Session, { foreignKey: 'sessionId' });

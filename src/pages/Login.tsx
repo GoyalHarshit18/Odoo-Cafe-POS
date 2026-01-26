@@ -183,6 +183,16 @@ export const LoginPage = () => {
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>
           </p>
+
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Want to register your restaurant?{' '}
+            <button
+              onClick={() => navigate('/admin/signup')}
+              className="text-primary font-medium hover:underline"
+            >
+              Become a Partner
+            </button>
+          </p>
         </div>
       </div>
 

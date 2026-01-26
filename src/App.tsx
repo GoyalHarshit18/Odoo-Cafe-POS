@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { POSProvider } from "@/context/POSContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { LoginPage } from "./pages/Login";
+import { AdminSignupPage } from "./pages/AdminSignup";
+import { CustomerLoginPage } from "./pages/CustomerLogin";
+import { CustomerDashboardPage } from "./pages/CustomerDashboard";
 import { Home } from "./pages/Home";
 import { POSPage } from "./pages/POS";
 import NotFound from "./pages/NotFound";
@@ -18,6 +21,7 @@ import { PaymentSelectionScreen } from '@/screens/PaymentSelectionScreen';
 import { KitchenScreen } from '@/screens/KitchenScreen';
 import { CustomerScreen } from '@/screens/CustomerScreen';
 import { ReportsScreen } from '@/screens/ReportsScreen';
+import { AdminDashboardScreen } from '@/screens/AdminDashboardScreen';
 
 const queryClient = new QueryClient();
 
@@ -41,6 +45,10 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/admin/signup" element={<AdminSignupPage />} />
+                <Route path="/admin/dashboard" element={<AdminDashboardScreen />} />
+                <Route path="/customer/login" element={<CustomerLoginPage />} />
+                <Route path="/customer/dashboard" element={<CustomerDashboardPage />} />
 
                 <Route path="/pos" element={
                   <ProtectedRoute>

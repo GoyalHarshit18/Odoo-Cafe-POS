@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const generateToken = (id, role, secret, expiresIn) => {
-    return jwt.sign({ id, role }, secret, { expiresIn });
+const generateToken = (id, role, branchId, secret, expiresIn) => {
+    return jwt.sign({ id, role, branchId }, secret, { expiresIn });
 };
 
 export const signupRequest = async (req, res) => {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, branchId } = req.body;
 
     try {
         const userExists = await User.findOne({ where: { email } });
@@ -20,6 +20,7 @@ export const signupRequest = async (req, res) => {
             email,
             password,
             role: role || 'cashier',
+            branchId: branchId || null,
             verified: true,
         });
 
@@ -28,7 +29,8 @@ export const signupRequest = async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
-            token: generateToken(user.id, user.role, process.env.JWT_SECRET, '30d'),
+            branchId: user.branchId,
+            token: generateToken(user.id, user.role, user.branchId, process.env.JWT_SECRET, '30d'),
             message: 'User registered successfully',
         });
     } catch (error) {
@@ -57,7 +59,8 @@ export const loginRequest = async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
-            token: generateToken(user.id, user.role, process.env.JWT_SECRET, '30d'),
+            branchId: user.branchId,
+            token: generateToken(user.id, user.role, user.branchId, process.env.JWT_SECRET, '30d'),
         });
     } catch (error) {
         console.error(error);

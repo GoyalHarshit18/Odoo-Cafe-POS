@@ -39,6 +39,40 @@ export const createOrder = async (req, res) => {
     }
 };
 
+export const getOrders = async (req, res) => {
+    try {
+        const { status } = req.query;
+        const whereClause = {};
+        if (status === 'active') {
+            whereClause.status = ['running', 'in-kitchen', 'ready', 'served'];
+        } else if (status) {
+            whereClause.status = status;
+        }
+
+        const orders = await Order.findAll({
+            where: whereClause,
+            include: [
+                { model: OrderItem, as: 'items' },
+                { model: Table, attributes: ['number'] }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        const formattedOrders = orders.map(order => {
+            const plainOrder = order.get({ plain: true });
+            return {
+                ...plainOrder,
+                tableNumber: plainOrder.Table ? plainOrder.Table.number : '?'
+            };
+        });
+
+        res.status(200).json(formattedOrders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export const updateOrder = async (req, res) => {
     try {
         const { orderId } = req.params;

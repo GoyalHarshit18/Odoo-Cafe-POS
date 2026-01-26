@@ -25,8 +25,16 @@ const User = sequelize.define('User', {
         allowNull: false
     },
     role: {
-        type: DataTypes.ENUM('admin', 'cashier'),
+        type: DataTypes.ENUM('admin', 'cashier', 'kitchen'),
         defaultValue: 'cashier'
+    },
+    branchId: {
+        type: DataTypes.INTEGER,
+        allowNull: true, // Superadmin might not have a branch, or allow null for now
+        references: {
+            model: 'branches',
+            key: 'id'
+        }
     },
     verified: {
         type: DataTypes.BOOLEAN,

@@ -28,6 +28,14 @@ const Product = sequelize.define('Product', {
     isAvailable: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+    },
+    branchId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'branches',
+            key: 'id'
+        }
     }
 }, {
     timestamps: true,

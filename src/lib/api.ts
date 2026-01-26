@@ -1,5 +1,7 @@
 // CHANGE THIS to your machine's IP (e.g., '192.168.1.5') to access from other devices
-const API_URL = `http://${window.location.hostname}:5000/api`;
+// Use environment variable for production, fallback to localhost for development
+export const BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000`;
+const API_URL = `${BASE_URL}/api`;
 
 export const authApi = {
     register: async (userData: any) => {

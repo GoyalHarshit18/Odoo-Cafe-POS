@@ -46,7 +46,14 @@ export const Home = () => {
                     <div className="flex items-center gap-4">
                         <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground hidden sm:block">Features</a>
                         <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-foreground hidden sm:block">Explore Roles</a>
-                        {!isAuthenticated && (
+                        {isAuthenticated ? (
+                            <Button
+                                onClick={() => navigate('/pos')}
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
+                            >
+                                Dashboard
+                            </Button>
+                        ) : (
                             <Button
                                 onClick={() => navigate('/login')}
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
@@ -54,6 +61,13 @@ export const Home = () => {
                                 Login
                             </Button>
                         )}
+                        <Button
+                            variant="outline"
+                            onClick={() => navigate('/admin/signup')}
+                            className="rounded-full px-4"
+                        >
+                            Partner
+                        </Button>
                     </div>
                 </div>
             </nav>

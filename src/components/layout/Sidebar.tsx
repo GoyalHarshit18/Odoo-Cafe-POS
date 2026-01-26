@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  ShieldCheck,
   Menu,
   X
 } from 'lucide-react';
@@ -31,13 +32,29 @@ export const Sidebar = () => {
     navigate('/login');
   };
 
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  const isAdmin = user?.role === 'admin';
+
   const menuItems = [
     { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard },
     { id: 'order', label: t('orders'), icon: ShoppingBag },
     { id: 'kitchen', label: t('kitchen'), icon: ChefHat },
     { id: 'customer', label: t('customer'), icon: Monitor },
-    { id: 'reports', label: t('reports'), icon: BarChart3 },
+    ...(isAdmin ? [
+      { id: 'admin-dashboard', label: 'Admin Portal', icon: ShieldCheck, path: '/admin/dashboard' },
+      { id: 'reports', label: t('reports'), icon: BarChart3 }
+    ] : []),
   ];
+
+  const handleNavClick = (item: any) => {
+    if (item.path) {
+      navigate(item.path);
+    } else {
+      setCurrentScreen(item.id);
+    }
+    setMobileOpen(false);
+  };
 
   const NavContent = () => (
     <>
@@ -59,10 +76,7 @@ export const Sidebar = () => {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => {
-              setCurrentScreen(item.id);
-              setMobileOpen(false);
-            }}
+            onClick={() => handleNavClick(item)}
             className={cn(
               'w-full flex items-center gap-3 px-3 py-3 rounded-xl',
               'transition-all duration-200 touch-btn',
