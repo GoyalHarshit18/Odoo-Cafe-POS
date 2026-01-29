@@ -3,15 +3,30 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const sequelize = process.env.DATABASE_URL
+// Parse DATABASE_URL if present to ensure options are applied correctly
+const isProduction = process.env.NODE_ENV === 'production' || !!process.env.DATABASE_URL;
+
+const sequelize = isProduction
   ? new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     logging: false,
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false
+        rejectUnauthorized: false // This fixes SELF_SIGNED_CERT_IN_CHAIN
       }
+    },
+    // Explicitly retry connection logic if internal driver fails
+    retry: {
+      match: [
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/
+      ],
+      max: 5
     },
     pool: {
       max: 10,
