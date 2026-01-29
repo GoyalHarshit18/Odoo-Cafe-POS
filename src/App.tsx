@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
@@ -6,23 +7,33 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { POSProvider } from "@/context/POSContext";
 import { LanguageProvider } from "@/context/LanguageContext";
-import { LoginPage } from "./pages/Login";
-import { AdminSignupPage } from "./pages/AdminSignup";
-import { CustomerLoginPage } from "./pages/CustomerLogin";
-import { CustomerDashboardPage } from "./pages/CustomerDashboard";
-import { Home } from "./pages/Home";
-import { POSPage } from "./pages/POS";
-import NotFound from "./pages/NotFound";
 
-import { DashboardScreen } from '@/screens/DashboardScreen';
-import { FloorScreen } from '@/screens/FloorScreen';
-import { OrderScreen } from '@/screens/OrderScreen';
-import { PaymentSelectionScreen } from '@/screens/PaymentSelectionScreen';
-import { KitchenScreen } from '@/screens/KitchenScreen';
-import { KitchenStaffScreen } from '@/screens/KitchenStaffScreen';
-import { CustomerScreen } from '@/screens/CustomerScreen';
-import { ReportsScreen } from '@/screens/ReportsScreen';
-import { AdminDashboardScreen } from '@/screens/AdminDashboardScreen';
+// Lazy Load Pages
+const LoginPage = lazy(() => import("./pages/Login").then(module => ({ default: module.LoginPage })));
+const AdminSignupPage = lazy(() => import("./pages/AdminSignup").then(module => ({ default: module.AdminSignupPage })));
+const CustomerLoginPage = lazy(() => import("./pages/CustomerLogin").then(module => ({ default: module.CustomerLoginPage })));
+const CustomerDashboardPage = lazy(() => import("./pages/CustomerDashboard").then(module => ({ default: module.CustomerDashboardPage })));
+const Home = lazy(() => import("./pages/Home").then(module => ({ default: module.Home })));
+const POSPage = lazy(() => import("./pages/POS").then(module => ({ default: module.POSPage })));
+const NotFound = lazy(() => import("./pages/NotFound")); // Default export usually
+
+// Lazy Load Screens
+const DashboardScreen = lazy(() => import("@/screens/DashboardScreen").then(m => ({ default: m.DashboardScreen })));
+const FloorScreen = lazy(() => import("@/screens/FloorScreen").then(m => ({ default: m.FloorScreen })));
+const OrderScreen = lazy(() => import("@/screens/OrderScreen").then(m => ({ default: m.OrderScreen })));
+const PaymentSelectionScreen = lazy(() => import("@/screens/PaymentSelectionScreen").then(m => ({ default: m.PaymentSelectionScreen })));
+const KitchenScreen = lazy(() => import("@/screens/KitchenScreen").then(m => ({ default: m.KitchenScreen })));
+const KitchenStaffScreen = lazy(() => import("@/screens/KitchenStaffScreen").then(m => ({ default: m.KitchenStaffScreen })));
+const CustomerScreen = lazy(() => import("@/screens/CustomerScreen").then(m => ({ default: m.CustomerScreen })));
+const ReportsScreen = lazy(() => import("@/screens/ReportsScreen").then(m => ({ default: m.ReportsScreen })));
+const AdminDashboardScreen = lazy(() => import("@/screens/AdminDashboardScreen").then(m => ({ default: m.AdminDashboardScreen })));
+
+// Loading Component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -43,38 +54,40 @@ const App = () => (
             <LanguageProvider>
               <Toaster />
               <Sonner />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/admin/signup" element={<AdminSignupPage />} />
-                <Route path="/admin/dashboard" element={<AdminDashboardScreen />} />
-                <Route path="/customer/login" element={<CustomerLoginPage />} />
-                <Route path="/customer/dashboard" element={<CustomerDashboardPage />} />
-                <Route path="/kitchen-display" element={
-                  <ProtectedRoute>
-                    <KitchenStaffScreen />
-                  </ProtectedRoute>
-                } />
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/admin/signup" element={<AdminSignupPage />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboardScreen />} />
+                  <Route path="/customer/login" element={<CustomerLoginPage />} />
+                  <Route path="/customer/dashboard" element={<CustomerDashboardPage />} />
+                  <Route path="/kitchen-display" element={
+                    <ProtectedRoute>
+                      <KitchenStaffScreen />
+                    </ProtectedRoute>
+                  } />
 
-                <Route path="/pos" element={
-                  <ProtectedRoute>
-                    <POSPage />
-                  </ProtectedRoute>
-                }>
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<DashboardScreen />} />
-                  <Route path="floor" element={<FloorScreen />} />
-                  <Route path="table" element={<FloorScreen />} /> {/* Alias if needed */}
-                  <Route path="order" element={<OrderScreen />} />
-                  <Route path="payment" element={<PaymentSelectionScreen />} />
-                  <Route path="kitchen" element={<KitchenScreen />} />
-                  <Route path="customer" element={<CustomerScreen />} />
-                  <Route path="reports" element={<ReportsScreen />} />
-                </Route>
+                  <Route path="/pos" element={
+                    <ProtectedRoute>
+                      <POSPage />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<DashboardScreen />} />
+                    <Route path="floor" element={<FloorScreen />} />
+                    <Route path="table" element={<FloorScreen />} /> {/* Alias if needed */}
+                    <Route path="order" element={<OrderScreen />} />
+                    <Route path="payment" element={<PaymentSelectionScreen />} />
+                    <Route path="kitchen" element={<KitchenScreen />} />
+                    <Route path="customer" element={<CustomerScreen />} />
+                    <Route path="reports" element={<ReportsScreen />} />
+                  </Route>
 
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </LanguageProvider>
           </POSProvider>
         </BrowserRouter>
