@@ -31,19 +31,21 @@ app.use('/api/customer', customerRoutes);
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+    // Start listening IMMEDIATELY to satisfy Render's port binding requirement
+    const server = app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+
     try {
+        console.log('Attempting to connect to database...');
         await connectWithRetry();
 
         // Sync models
         await sequelize.sync({ alter: true });
         console.log('Database synced successfully');
     } catch (error) {
-        console.error('Failed to connect to database after retries. Starting server anyway (endpoints may fail)...', error);
+        console.error('Failed to connect to database or sync models. Server is running but DB features may fail.', error);
     }
-
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
 };
 
 startServer();
