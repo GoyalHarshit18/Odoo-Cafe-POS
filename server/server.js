@@ -1,7 +1,10 @@
-import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
 import cors from 'cors';
 import sequelize, { connectWithRetry } from './config/db.js';
+
 import authRoutes from './routes/auth.routes.js';
 import homeRoutes from './routes/home.routes.js';
 import branchRoutes from './routes/branch.routes.js';
@@ -11,13 +14,16 @@ import orderRoutes from './routes/order.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import customerRoutes from './routes/customer.routes.js';
 
-dotenv.config();
-
 const app = express();
 
 app.use(express.json());
-app.use(cors()); // TODO: Restrict for production if needed
+app.use(cors());
 app.use('/public', express.static('public'));
+
+// Health check (VERY IMPORTANT for Render)
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
@@ -30,22 +36,22 @@ app.use('/api/customer', customerRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-    // Start listening IMMEDIATELY to satisfy Render's port binding requirement
-    const server = app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+// 🚀 Start server FIRST
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
 
+// 🔁 Connect DB AFTER server is live
+(async () => {
     try {
         console.log('Attempting to connect to database...');
         await connectWithRetry();
-
-        // Sync models
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         console.log('Database synced successfully');
     } catch (error) {
-        console.error('Failed to connect to database or sync models. Server is running but DB features may fail.', error);
+        console.error(
+            'Database connection failed. Server is running, retry on next request.',
+            error.message
+        );
     }
-};
-
-startServer();
+})();
