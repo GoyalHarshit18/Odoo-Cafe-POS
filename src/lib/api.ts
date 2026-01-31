@@ -1,5 +1,7 @@
-// Use environment variable for production, fallback to Render URL if missing (critical for Vercel)
-export const BASE_URL = import.meta.env.VITE_API_URL || 'https://odoo-cafe-pos-h0wl.onrender.com';
+// Use relative URL in development for proxying, absolute URL in production
+export const BASE_URL = import.meta.env.MODE === 'development'
+    ? ''
+    : (import.meta.env.VITE_API_URL || 'https://odoo-cafe-pos-h0wl.onrender.com');
 const API_URL = `${BASE_URL}/api`;
 
 export const authApi = {

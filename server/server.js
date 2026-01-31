@@ -57,6 +57,7 @@ app.get('/', (req, res) => {
 });
 
 // API routes
+console.log('Mounting API routes...');
 app.use('/api/auth', authRoutes);
 app.use('/api/home', homeRoutes);
 app.use('/api/branches', branchRoutes);
@@ -64,6 +65,7 @@ app.use('/api/pos', posRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+console.log('All API routes integrated ✅');
 
 const PORT = process.env.PORT || 5000;
 
