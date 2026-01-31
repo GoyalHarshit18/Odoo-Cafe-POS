@@ -32,6 +32,15 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
+app.get('/health/db', async (req, res) => {
+    try {
+        await sequelize.authenticate();
+        res.status(200).json({ status: 'Database connected', dialect: sequelize.getDialect() });
+    } catch (error) {
+        res.status(500).json({ status: 'Database disconnected', error: error.message });
+    }
+});
+
 app.get('/', (req, res) => {
     res.json({ status: 'API is running 🚀' });
 });
