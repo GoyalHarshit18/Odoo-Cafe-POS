@@ -191,7 +191,7 @@ export const LoginPage = () => {
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Want to register your restaurant?{' '}
             <button
-              onClick={() => window.open('https://odoocafe.com/register', '_blank')}
+              onClick={() => navigate('/admin/signup')}
               className="text-primary font-medium hover:underline"
             >
               Become a Partner
