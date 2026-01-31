@@ -20,7 +20,11 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+// Explicit CORS to allow Vercel frontend
+app.use(cors({
+    origin: '*', // For debugging, allow all. In production, use specific domain.
+    credentials: true
+}));
 app.use('/public', express.static('public'));
 
 // ✅ ADD THIS
