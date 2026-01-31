@@ -1,6 +1,5 @@
-// CHANGE THIS to your machine's IP (e.g., '192.168.1.5') to access from other devices
-// Use environment variable for production, fallback to localhost for development
-export const BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000`;
+// Use environment variable for production, fallback to Render URL if missing (critical for Vercel)
+export const BASE_URL = import.meta.env.VITE_API_URL || 'https://odoo-cafe-pos-h0wl.onrender.com';
 const API_URL = `${BASE_URL}/api`;
 
 export const authApi = {
