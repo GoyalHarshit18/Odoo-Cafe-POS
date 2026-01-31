@@ -32,6 +32,7 @@ interface POSContextType {
   currentScreen: string;
   setCurrentScreen: (screen: string) => void;
   isFloorsLoading: boolean;
+  isProductsLoading: boolean;
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
@@ -49,6 +50,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [kdsTickets, setKdsTickets] = useState<KDSTicket[]>([]);
   const [orderCounter, setOrderCounter] = useState(1001);
   const [isFloorsLoading, setIsFloorsLoading] = useState(true);
+  const [isProductsLoading, setIsProductsLoading] = useState(true);
 
   // Fetch floors from backend
   const fetchFloors = useCallback(async () => {
@@ -90,6 +92,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
     try {
+      setIsProductsLoading(true);
       const response = await fetch(`${BASE_URL}/api/pos/products`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -113,6 +116,8 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
+    } finally {
+      setIsProductsLoading(false);
     }
   }, []);
 
@@ -593,6 +598,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentScreen,
         setCurrentScreen,
         isFloorsLoading,
+        isProductsLoading,
       }}
     >
       {children}

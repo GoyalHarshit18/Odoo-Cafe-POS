@@ -147,8 +147,8 @@ export const AdminProductManager = () => {
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="Food">Food</SelectItem>
-                                            <SelectItem value="Beverage">Beverage</SelectItem>
-                                            <SelectItem value="Dessert">Dessert</SelectItem>
+                                            <SelectItem value="Beverages">Beverages</SelectItem>
+                                            <SelectItem value="Desserts">Desserts</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>

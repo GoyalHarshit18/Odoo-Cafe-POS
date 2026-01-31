@@ -98,9 +98,11 @@ export const getProducts = async (req, res) => {
             }
         });
 
-        if (products.length === 0 && branchId) {
-            const allCount = await Product.count();
-            console.log(`[DEBUG /products] No products for branch ${branchId}. Total products in DB: ${allCount}`);
+        if (products.length === 0) {
+            console.log(`[DEBUG /products] No active products found for branch ${branchId}.`);
+            // Check if ANY products exist at all to debug DB state
+            const totalCount = await Product.count();
+            console.log(`[DEBUG /products] Total products in database: ${totalCount}`);
         }
 
         console.log(`[GET /products] Found ${products.length} products`);

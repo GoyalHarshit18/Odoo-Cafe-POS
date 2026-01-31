@@ -12,7 +12,8 @@ import {
   Trash2,
   ArrowLeft,
   Search,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,7 @@ export const OrderScreen = () => {
     sendToKitchen,
     setCurrentScreen,
     updateTableStatus,
+    isProductsLoading,
   } = usePOS();
 
   const { t } = useLanguage();
@@ -170,15 +172,37 @@ export const OrderScreen = () => {
 
         {/* Products Grid */}
         <div className="flex-1 overflow-y-auto scrollbar-thin">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAdd={() => addToOrder(product)}
-              />
-            ))}
-          </div>
+          {isProductsLoading ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-3">
+              <Loader2 className="w-10 h-10 animate-spin text-primary opacity-50" />
+              <p className="text-muted-foreground animate-pulse">Fetching your menu...</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAdd={() => addToOrder(product)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+              <ShoppingBag className="w-12 h-12 text-muted-foreground opacity-20 mb-4" />
+              <h3 className="text-lg font-medium">No Products Found</h3>
+              <p className="text-muted-foreground max-w-xs">
+                {searchQuery
+                  ? `No products match "${searchQuery}"`
+                  : "This category is currently empty. Add products from the Admin Dashboard."}
+              </p>
+              {!searchQuery && (
+                <Button variant="outline" className="mt-6" onClick={() => window.location.href = '/admin/dashboard'}>
+                  Go to Admin Dashboard
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Cart Toggle */}
