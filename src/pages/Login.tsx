@@ -73,9 +73,12 @@ export const LoginPage = () => {
         navigate('/pos');
       }
     } catch (error: any) {
+      const isTimeout = error.name === 'AbortError' || error.message?.includes('timeout');
       toast({
-        title: 'Authentication Error',
-        description: error.message || 'Something went wrong. Please try again.',
+        title: isTimeout ? 'Service Timeout' : 'Authentication Error',
+        description: isTimeout
+          ? 'The server is taking too long to respond. It might be waking up (Cold Start). Please wait 30 seconds and try again.'
+          : (error.message || 'Something went wrong. Please try again.'),
         variant: 'destructive',
       });
     } finally {
