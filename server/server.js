@@ -17,6 +17,8 @@ import Branch from './models/Branch.js';
 import Floor from './models/Floor.js';
 import Product from './models/Product.js';
 import Table from './models/Table.js';
+import Order from './models/Order.js';
+import Session from './models/Session.js';
 
 dotenv.config();
 
@@ -32,11 +34,11 @@ app.use('/public', express.static('public'));
 
 // ✅ Health Check with Versioning
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', version: '1.0.6' });
+    res.status(200).json({ status: 'ok', version: '1.0.7-revenue-seed' });
 });
 
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', version: '1.0.6', proxied: true });
+    res.status(200).json({ status: 'ok', version: '1.0.7-revenue-seed', proxied: true });
 });
 
 app.get('/health/db', async (req, res) => {
@@ -46,7 +48,7 @@ app.get('/health/db', async (req, res) => {
         console.log('Health check: Database reachable');
         res.status(200).json({
             status: 'Database connected',
-            version: '1.0.6',
+            version: '1.0.7-revenue-seed',
             dialect: sequelize.getDialect()
         });
     } catch (error) {
@@ -178,6 +180,70 @@ const startServer = async () => {
                         }
                         console.log('   Missing images updated ✅');
                     }
+                }
+
+                // 7. NEW: Seed Revenue (Sessions and Orders)
+                try {
+                    const todayOrdersCount = await Order.count({
+                        where: {
+                            branchId: branch.id,
+                            createdAt: { [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) }
+                        }
+                    });
+
+                    if (todayOrdersCount === 0) {
+                        console.log(`   Seeding: Adding sample revenue for branch ${branch.id}...`);
+
+                        // Create an active session
+                        const adminUser = await User.findOne({ where: { role: 'admin', branchId: branch.id } });
+                        if (adminUser) {
+                            const session = await Session.create({
+                                userId: adminUser.id,
+                                branchId: branch.id,
+                                openingBalance: 1000,
+                                status: 'open'
+                            });
+
+                            const floor = await Floor.findOne({ where: { branchId: branch.id } });
+                            const table = await Table.findOne({ where: { branchId: branch.id } });
+
+                            // Create 3 paid orders to generate revenue
+                            await Order.bulkCreate([
+                                {
+                                    branchId: branch.id,
+                                    sessionId: session.id,
+                                    tableId: table ? table.id : 1,
+                                    total: 450.00,
+                                    status: 'paid',
+                                    paymentMethod: 'cash',
+                                    paidAt: new Date()
+                                },
+                                {
+                                    branchId: branch.id,
+                                    sessionId: session.id,
+                                    tableId: table ? table.id : 1,
+                                    total: 1250.00,
+                                    status: 'paid',
+                                    paymentMethod: 'upi',
+                                    paidAt: new Date()
+                                },
+                                {
+                                    branchId: branch.id,
+                                    sessionId: session.id,
+                                    tableId: table ? table.id : 1,
+                                    total: 800.00,
+                                    status: 'paid',
+                                    paymentMethod: 'card',
+                                    paidAt: new Date()
+                                }
+                            ]);
+                            console.log(`   Revenue added for branch ${branch.id}: (₹2500 Today) ✅`);
+                        }
+                    } else {
+                        console.log(`   Seeding: Branch ${branch.id} already has orders for today. Skipping revenue seed.`);
+                    }
+                } catch (e) {
+                    console.error(`   Seeding Error (Revenue branch ${branch.id}):`, e.message);
                 }
             }
         } catch (e) {
