@@ -12,6 +12,9 @@ import sessionRoutes from './routes/session.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 
+import User from './models/User.js';
+import Branch from './models/Branch.js';
+
 dotenv.config();
 
 const app = express();
@@ -26,11 +29,11 @@ app.use('/public', express.static('public'));
 
 // ✅ Health Check with Versioning
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', version: '1.0.4' });
+    res.status(200).json({ status: 'ok', version: '1.0.5' });
 });
 
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', version: '1.0.4', proxied: true });
+    res.status(200).json({ status: 'ok', version: '1.0.5', proxied: true });
 });
 
 app.get('/health/db', async (req, res) => {
@@ -40,14 +43,14 @@ app.get('/health/db', async (req, res) => {
         console.log('Health check: Database reachable');
         res.status(200).json({
             status: 'Database connected',
-            version: '1.0.4',
+            version: '1.0.5',
             dialect: sequelize.getDialect()
         });
     } catch (error) {
         console.error('Health check: Database connection failed:', error.message);
         res.status(500).json({
             status: 'Database disconnected',
-            version: '1.0.4',
+            version: '1.0.5',
             error: error.message
         });
     }
@@ -81,16 +84,28 @@ const startServer = async () => {
         await sequelize.authenticate();
         console.log('PostgreSQL database connected via Sequelize');
 
-        // Only alter table if explicitly in development and NOT on Render
-        const isRender = process.env.RENDER || process.env.RENDER_SERVICE_ID;
-        const shouldAlter = process.env.NODE_ENV === 'development' && !isRender;
+        console.log(`Attempting DB Sync (alter: true)...`);
+        await sequelize.sync({ alter: true });
+        console.log(`Database synced successfully.`);
 
-        if (shouldAlter) {
-            console.log(`Attempting DB Sync (alter: ${shouldAlter})...`);
-            await sequelize.sync({ alter: shouldAlter });
-            console.log(`Database synced successfully.`);
-        } else {
-            console.log(`Skipping DB Sync in Production/Render.`);
+        // Auto-seed if no users exist
+        const userCount = await User.count();
+        if (userCount === 0) {
+            console.log('No users found. Seeding default admin...');
+            const branch = await Branch.create({
+                name: 'Main Branch',
+                address: 'Default City',
+                phone: '0000000000'
+            });
+
+            await User.create({
+                username: 'admin',
+                email: 'admin1@gmail.com',
+                password: '123',
+                role: 'admin',
+                branchId: branch.id
+            });
+            console.log('Default admin created: admin1@gmail.com / 123');
         }
 
     } catch (err) {
