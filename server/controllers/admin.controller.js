@@ -174,24 +174,4 @@ export const getDashboardStats = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
-export const fixBranchesDebug = async (req, res) => {
-    try {
-        const usernames = ['admin1', 'admin2', 'admin3', 'Harshit'];
-        const results = [];
-        for (const username of usernames) {
-            const user = await User.findOne({ where: { username } });
-            if (user) {
-                const oldBranch = user.branchId;
-                user.branchId = 1;
-                await user.save();
-                results.push(`${username}: ${oldBranch} -> 1`);
-            } else {
-                results.push(`${username}: Not found`);
-            }
-        }
-        res.json({ message: 'Fix applied', results });
-    } catch (error) {
-        console.error("Fix Branches Error:", error);
-        res.status(500).json({ error: error.message });
-    }
-};
+

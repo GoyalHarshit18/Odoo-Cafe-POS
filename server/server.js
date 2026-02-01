@@ -84,24 +84,6 @@ const startServer = async () => {
         const shouldAlter = process.env.NODE_ENV === 'development';
         await sequelize.sync({ alter: shouldAlter });
         console.log(`Database synced (alter: ${shouldAlter})`);
-
-        // GUARANTEED STARTUP FIX FOR USER BRANCHES
-        setTimeout(async () => {
-            console.log('[STARTUP FIX] Running branch assignment fix...');
-            try {
-                const usernames = ['admin1', 'admin2', 'admin3', 'Harshit'];
-                for (const username of usernames) {
-                    const user = await User.findOne({ where: { username } });
-                    if (user) {
-                        user.branchId = 1;
-                        await user.save();
-                        console.log(`[STARTUP FIX] Updated ${username} to branch 1`);
-                    }
-                }
-            } catch (e) {
-                console.error("[STARTUP FIX] Error:", e.message);
-            }
-        }, 10000); // Wait 10s after startup
     } catch (err) {
         console.error('DB Sync Error:', err.message);
     }
