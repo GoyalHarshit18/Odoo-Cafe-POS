@@ -74,7 +74,13 @@ console.log('All API routes integrated ✅');
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
+    // Start Server IMMEDIATELY so Render detects the port
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+
     try {
+        console.log('Attempting to connect to Database...');
         await sequelize.authenticate();
         console.log('PostgreSQL database connected via Sequelize');
 
@@ -82,18 +88,17 @@ const startServer = async () => {
         const isRender = process.env.RENDER || process.env.RENDER_SERVICE_ID;
         const shouldAlter = process.env.NODE_ENV === 'development' && !isRender;
 
-        console.log(`Attempting DB Sync (alter: ${shouldAlter})...`);
-        await sequelize.sync({ alter: shouldAlter });
-        console.log(`Database synced successfully.`);
+        if (shouldAlter) {
+            console.log(`Attempting DB Sync (alter: ${shouldAlter})...`);
+            await sequelize.sync({ alter: shouldAlter });
+            console.log(`Database synced successfully.`);
+        } else {
+            console.log(`Skipping DB Sync in Production/Render.`);
+        }
 
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Server running on port ${PORT}`);
-        });
     } catch (err) {
         console.error('DB Connection/Sync Error:', err.message);
-        // We still want the server to fail fast if DB logs are critical, 
-        // but often it's better to let it crash so Render restarts it with fresh state.
-        process.exit(1);
+        // Do NOT exit process, keep server running so logs are visible and health check can reflect DB status
     }
 };
 
