@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Table, Order, OrderItem, Product, Session, KDSTicket, TableStatus, Floor } from '@/types/pos';
-import { BASE_URL } from '@/lib/api';
+import { BASE_URL, getAuthToken } from '@/lib/api';
 
 interface POSContextType {
   session: Session | null;
@@ -58,9 +58,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
       if (isInitial) setIsFloorsLoading(true);
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/pos/floors`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         signal: controller.signal
       });
@@ -103,9 +106,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
       if (isInitial) setIsProductsLoading(true);
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/pos/products`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         signal: controller.signal
       });
@@ -140,8 +146,11 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch KDS Tickets (Active Orders)
   const fetchKDSTickets = useCallback(async () => {
     try {
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/orders/all`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         const data = await response.json();

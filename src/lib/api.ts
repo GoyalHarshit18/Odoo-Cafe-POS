@@ -4,6 +4,20 @@ export const BASE_URL = import.meta.env.MODE === 'development'
     : (import.meta.env.VITE_API_URL || 'https://odoo-cafe-pos-h0wl.onrender.com');
 const API_URL = `${BASE_URL}/api`;
 
+export const getAuthToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token || token === 'null' || token === 'undefined') return null;
+    return token;
+};
+
+export const getAuthHeaders = () => {
+    const token = getAuthToken();
+    return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+};
+
 export const authApi = {
     register: async (userData: any) => {
         const controller = new AbortController();
