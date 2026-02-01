@@ -1,9 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
-// Bypass for self-signed certificates in deployment
-if (process.env.NODE_ENV === 'production') {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
+// Bypass for self-signed certificates removed as per best practices
 import cors from 'cors';
 import sequelize from './config/db.js';
 
