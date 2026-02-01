@@ -77,9 +77,13 @@ export const addStaff = async (req, res) => {
     const { username, email, password, role } = req.body;
     const branchId = req.user.branchId;
 
+    console.log(`[ADD STAFF] Processing request for ${username} (${email}) in branch ${branchId}`);
+    console.log(`[ADD STAFF] Admin requesting: ${req.user.username} (ID: ${req.user.id})`);
+
     try {
         const userExists = await User.findOne({ where: { email } });
         if (userExists) {
+            console.warn(`[ADD STAFF] Email already registered: ${email}`);
             return res.status(400).json({
                 message: userExists.branchId === branchId
                     ? 'User already exists in your branch'
@@ -96,9 +100,10 @@ export const addStaff = async (req, res) => {
             verified: true
         });
 
+        console.log(`[ADD STAFF] Success! New staff ID: ${user.id}`);
         res.status(201).json({ message: 'Staff created successfully', user: { id: user.id, username: user.username, role: user.role } });
     } catch (error) {
-        console.error("Add Staff Error:", error);
+        console.error("[ADD STAFF] DATABASE ERROR:", error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

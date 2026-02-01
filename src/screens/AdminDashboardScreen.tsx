@@ -134,18 +134,24 @@ export const AdminDashboardScreen = () => {
                 toast({ title: "Staff Added" });
                 setIsAddStaffOpen(false);
                 fetchStaff();
+                fetchStats(); // Update stats as well
                 setNewStaff({ username: '', email: '', password: '', role: 'cashier' });
             } else {
                 const data = await response.json();
+                console.error("Add Staff Failed:", data);
                 toast({
                     title: "Failed to add staff",
-                    description: data.message || data.error || "Unknown error",
+                    description: data.message || data.error || "Server error",
                     variant: "destructive"
                 });
             }
         } catch (error: any) {
             console.error(error);
-            toast({ title: "Network Error", description: error.message, variant: "destructive" });
+            toast({
+                title: "Network Error",
+                description: "Could not reach the server. Please check your connection.",
+                variant: "destructive"
+            });
         }
     };
 
