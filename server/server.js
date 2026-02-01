@@ -90,148 +90,123 @@ const startServer = async () => {
         await sequelize.sync({ alter: true });
         console.log(`Database synced successfully.`);
 
+        // --- GRANULAR SEEDING WITH LOGGING ---
+
         // 1. Ensure a Branch exists
-        let branch = await Branch.findOne();
-        if (!branch) {
-            console.log('Seeding default branch...');
-            branch = await Branch.create({
-                name: 'Main Branch',
-                address: 'Default City',
-                phone: '0000000000'
-            });
+        let branch;
+        try {
+            branch = await Branch.findOne();
+            if (!branch) {
+                console.log('Seeding: No branch found. Creating "Main Branch"...');
+                branch = await Branch.create({
+                    name: 'Main Branch',
+                    address: 'Default City',
+                    phone: '0000000000'
+                });
+                console.log('Seeding: Branch created ✅');
+            } else {
+                console.log(`Seeding: Using existing branch: ${branch.name}`);
+            }
+        } catch (e) {
+            console.error('Seeding Error (Branch):', e.message);
         }
 
-        // 2. Ensure Admin User exists
-        const adminExists = await User.findOne({ where: { role: 'admin' } });
-        if (!adminExists) {
-            console.log('Seeding default admin...');
-            await User.create({
-                username: 'admin',
-                email: 'admin1@gmail.com',
-                password: '123',
-                role: 'admin',
-                branchId: branch.id
-            });
-            console.log('Default admin created: admin1@gmail.com / 123');
-        }
-
-        // 3. Ensure Kitchen Staff exists
-        const kitchenExists = await User.findOne({ where: { role: 'kitchen' } });
-        if (!kitchenExists) {
-            console.log('Seeding kitchen staff...');
-            await User.create({
-                username: 'Kitchen Staff',
-                email: 'kitchen1@gmail.com',
-                password: '1234',
-                role: 'kitchen',
-                branchId: branch.id
-            });
-            console.log('Kitchen staff created: kitchen1@gmail.com / 1234');
-        }
-
-        // 4. Ensure Floors exist
-        const floorCount = await Floor.count();
-        if (floorCount === 0) {
-            console.log('Seeding floors...');
-            await Floor.create({ name: 'Ground Floor', branchId: branch.id });
-            await Floor.create({ name: 'First Floor', branchId: branch.id });
-            console.log('Floors created.');
-        }
-
-        // 5. Ensure Products exist
-        const productCount = await Product.count();
-        if (productCount === 0) {
-            console.log('Seeding products...');
-            await Product.bulkCreate([
-                {
-                    name: 'Espresso',
-                    price: 120,
-                    category: 'Coffee',
-                    description: 'Strong black coffee',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1510707513152-52462e1a3597?q=80&w=800'
-                },
-                {
-                    name: 'Cappuccino',
-                    price: 180,
-                    category: 'Coffee',
-                    description: 'Coffee with steamed milk foam',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=800'
-                },
-                {
-                    name: 'Latte',
-                    price: 200,
-                    category: 'Coffee',
-                    description: 'Creamy milk coffee',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1536939459926-301728717817?q=80&w=800'
-                },
-                {
-                    name: 'Green Tea',
-                    price: 100,
-                    category: 'Tea',
-                    description: 'Healthy green tea',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1523920290228-4f321a939b4c?q=80&w=800'
-                },
-                {
-                    name: 'Masala Chai',
-                    price: 80,
-                    category: 'Tea',
-                    description: 'Traditional spiced tea',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?q=80&w=800'
-                },
-                {
-                    name: 'Veg Burger',
-                    price: 250,
-                    category: 'Food',
-                    description: 'Crispy veg patty burger',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800'
-                },
-                {
-                    name: 'Chicken Sandwich',
-                    price: 300,
-                    category: 'Food',
-                    description: 'Grilled chicken sandwich',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=800'
-                },
-                {
-                    name: 'French Fries',
-                    price: 150,
-                    category: 'Sides',
-                    description: 'Golden crispy fries',
-                    branchId: branch.id,
-                    image: 'https://images.unsplash.com/photo-1573082801971-13b5bbce784a?q=80&w=800'
+        if (branch) {
+            // 2. Ensure Admin User exists
+            try {
+                const adminExists = await User.findOne({ where: { role: 'admin' } });
+                if (!adminExists) {
+                    console.log('Seeding: Creating default admin (admin1@gmail.com)...');
+                    await User.create({
+                        username: 'admin',
+                        email: 'admin1@gmail.com',
+                        password: '123',
+                        role: 'admin',
+                        branchId: branch.id
+                    });
+                    console.log('Seeding: Admin created ✅');
                 }
-            ]);
-            console.log('Sample products created.');
-        } else {
-            // New logic: Update missing images for existing products
-            const productsWithNoImage = await Product.findAll({ where: { image: null } });
-            if (productsWithNoImage.length > 0) {
-                console.log(`Updating missing images for ${productsWithNoImage.length} products...`);
-                const imageMap = {
-                    'Espresso': 'https://images.unsplash.com/photo-1510707513152-52462e1a3597?q=80&w=800',
-                    'Cappuccino': 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=800',
-                    'Latte': 'https://images.unsplash.com/photo-1536939459926-301728717817?q=80&w=800',
-                    'Green Tea': 'https://images.unsplash.com/photo-1523920290228-4f321a939b4c?q=80&w=800',
-                    'Masala Chai': 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?q=80&w=800',
-                    'Veg Burger': 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800',
-                    'Chicken Sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=800',
-                    'French Fries': 'https://images.unsplash.com/photo-1573082801971-13b5bbce784a?q=80&w=800'
-                };
+            } catch (e) { console.error('Seeding Error (Admin):', e.message); }
 
-                for (const prod of productsWithNoImage) {
-                    if (imageMap[prod.name]) {
-                        await prod.update({ image: imageMap[prod.name] });
+            // 3. Ensure Kitchen Staff exists
+            try {
+                const kitchenExists = await User.findOne({ where: { role: 'kitchen' } });
+                if (!kitchenExists) {
+                    console.log('Seeding: Creating kitchen staff (kitchen1@gmail.com)...');
+                    await User.create({
+                        username: 'Kitchen Staff',
+                        email: 'kitchen1@gmail.com',
+                        password: '1234',
+                        role: 'kitchen',
+                        branchId: branch.id
+                    });
+                    console.log('Seeding: Kitchen staff created ✅');
+                }
+            } catch (e) { console.error('Seeding Error (Kitchen):', e.message); }
+
+            // 4. Ensure Floors exist
+            try {
+                const floorCount = await Floor.count();
+                if (floorCount === 0) {
+                    console.log('Seeding: Creating floors...');
+                    await Floor.create({ name: 'Ground Floor', branchId: branch.id });
+                    await Floor.create({ name: 'First Floor', branchId: branch.id });
+                    console.log('Seeding: Floors created ✅');
+                }
+            } catch (e) { console.error('Seeding Error (Floors):', e.message); }
+
+            // 5. Ensure Tables exist (User's request)
+            try {
+                const tableCount = await Table.count();
+                if (tableCount === 0) {
+                    console.log('Seeding: Creating tables for Ground Floor...');
+                    const groundFloor = await Floor.findOne({ where: { name: 'Ground Floor' } });
+                    if (groundFloor) {
+                        await Table.bulkCreate([
+                            { number: 1, seats: 2, floorId: groundFloor.id, branchId: branch.id },
+                            { number: 2, seats: 4, floorId: groundFloor.id, branchId: branch.id },
+                            { number: 3, seats: 6, floorId: groundFloor.id, branchId: branch.id },
+                            { number: 4, seats: 4, floorId: groundFloor.id, branchId: branch.id }
+                        ]);
+                        console.log('Seeding: Tables created ✅');
                     }
                 }
-                console.log('Missing images updated.');
-            }
+            } catch (e) { console.error('Seeding Error (Tables):', e.message); }
+
+            // 6. Ensure Products exist
+            try {
+                const productCount = await Product.count();
+                if (productCount === 0) {
+                    console.log('Seeding: Creating products with images...');
+                    await Product.bulkCreate([
+                        { name: 'Espresso', price: 120, category: 'Coffee', description: 'Strong black coffee', branchId: branch.id, image: 'https://images.unsplash.com/photo-1510707513152-52462e1a3597?q=80&w=800' },
+                        { name: 'Cappuccino', price: 180, category: 'Coffee', description: 'Coffee with steamed milk foam', branchId: branch.id, image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=800' },
+                        { name: 'Latte', price: 200, category: 'Coffee', description: 'Creamy milk coffee', branchId: branch.id, image: 'https://images.unsplash.com/photo-1536939459926-301728717817?q=80&w=800' },
+                        { name: 'Green Tea', price: 100, category: 'Tea', description: 'Healthy green tea', branchId: branch.id, image: 'https://images.unsplash.com/photo-1523920290228-4f321a939b4c?q=80&w=800' },
+                        { name: 'Veg Burger', price: 250, category: 'Food', description: 'Crispy veg patty burger', branchId: branch.id, image: 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800' },
+                        { name: 'Chicken Sandwich', price: 300, category: 'Food', description: 'Grilled chicken sandwich', branchId: branch.id, image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=800' }
+                    ]);
+                    console.log('Seeding: Products created ✅');
+                } else {
+                    // Update images if missing
+                    const productsWithNoImage = await Product.findAll({ where: { image: null } });
+                    if (productsWithNoImage.length > 0) {
+                        console.log(`Seeding: Updating ${productsWithNoImage.length} products with missing images...`);
+                        const imageMap = {
+                            'Espresso': 'https://images.unsplash.com/photo-1510707513152-52462e1a3597?q=80&w=800',
+                            'Cappuccino': 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=800',
+                            'Latte': 'https://images.unsplash.com/photo-1536939459926-301728717817?q=80&w=800',
+                            'Green Tea': 'https://images.unsplash.com/photo-1523920290228-4f321a939b4c?q=80&w=800',
+                            'Veg Burger': 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800',
+                            'Chicken Sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=800'
+                        };
+                        for (const prod of productsWithNoImage) {
+                            if (imageMap[prod.name]) await prod.update({ image: imageMap[prod.name] });
+                        }
+                        console.log('Seeding: Missing images updated ✅');
+                    }
+                }
+            } catch (e) { console.error('Seeding Error (Products):', e.message); }
         }
 
     } catch (err) {
