@@ -21,7 +21,7 @@ export const getAuthHeaders = () => {
 export const authApi = {
     register: async (userData: any) => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         try {
             const response = await fetch(`${API_URL}/auth/signup`, {
@@ -45,7 +45,7 @@ export const authApi = {
 
     login: async (credentials: any) => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         try {
             const response = await fetch(`${API_URL}/auth/login`, {

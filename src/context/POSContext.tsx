@@ -55,7 +55,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch floors from backend
   const fetchFloors = useCallback(async (isInitial = false) => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 60000);
     try {
       if (isInitial) setIsFloorsLoading(true);
       const token = getAuthToken();
@@ -100,10 +100,9 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  // Fetch products from backend
   const fetchProducts = useCallback(async (isInitial = false) => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 60000);
     try {
       if (isInitial) setIsProductsLoading(true);
       const token = getAuthToken();
@@ -230,7 +229,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const failsafeTimer = setTimeout(() => {
       setIsFloorsLoading(false);
       setIsProductsLoading(false);
-    }, 20000);
+    }, 60000);
 
     if (token) {
       fetchFloors(true);

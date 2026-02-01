@@ -67,7 +67,7 @@ export const AdminDashboardScreen = () => {
 
     const fetchStats = async () => {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
+        const timeout = setTimeout(() => controller.abort(), 60000);
         try {
             const token = getAuthToken();
             if (!token) return;
@@ -93,7 +93,7 @@ export const AdminDashboardScreen = () => {
 
     const fetchStaff = async () => {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
+        const timeout = setTimeout(() => controller.abort(), 60000);
         try {
             const token = getAuthToken();
             if (!token) return;

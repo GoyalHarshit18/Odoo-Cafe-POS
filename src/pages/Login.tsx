@@ -83,7 +83,7 @@ export const LoginPage = () => {
       toast({
         title: isTimeout ? 'Service Timeout' : 'Authentication Error',
         description: isTimeout
-          ? 'The server is taking too long to respond. It might be waking up (Cold Start). Please wait 30 seconds and try again.'
+          ? 'The server is taking too long to respond. It is likely waking up from a cold start. Please wait up to 60 seconds and try again.'
           : (error.message || 'Something went wrong. Please try again.'),
         variant: 'destructive',
       });
