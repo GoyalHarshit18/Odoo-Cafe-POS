@@ -1,4 +1,5 @@
-# 🍽️ ServeMate — ERP-Based Restaurant POS System
+# ☕ Cafe Cloud
+**Premium Restaurant Management System**
 
 ServeMate is a full-stack, ERP-inspired **Restaurant Point of Sale (POS) system** designed to handle real-world restaurant operations end-to-end.  
 It connects **cashiers, kitchen staff, and customers** through a single, unified platform, focusing on operational efficiency, transparency, and business growth.

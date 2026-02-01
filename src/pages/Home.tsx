@@ -51,7 +51,7 @@ export const Home = () => {
                         <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                             <span className="text-primary-foreground font-bold text-xl">O</span>
                         </div>
-                        <span className="font-semibold text-2xl tracking-tight text-primary">Odoo Cafe</span>
+                        <span className="font-semibold text-2xl tracking-tight text-primary">Cafe Cloud</span>
                     </div>
                     <div className="flex items-center gap-8">
                         <div className="hidden md:flex items-center gap-8 mr-4">
@@ -255,7 +255,7 @@ export const Home = () => {
                                 <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                                     <span className="text-primary-foreground font-bold text-xl">O</span>
                                 </div>
-                                <span className="font-semibold text-2xl tracking-tight text-white">Odoo Cafe</span>
+                                <span className="font-semibold text-2xl tracking-tight text-white">Cafe Cloud</span>
                             </div>
                             <p className="text-gray-400 leading-relaxed max-w-xs">
                                 Automate your cafe operations with the world's most intuitive and powerful SaaS POS solution. Crafted for excellence.
@@ -312,7 +312,7 @@ export const Home = () => {
 
                     <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
                         <p className="text-gray-500 text-sm">
-                            © 2026 Odoo Cafe. All rights reserved.
+                            © 2026 Cafe Cloud. All rights reserved.
                         </p>
                         <div className="flex gap-8 text-sm text-gray-500">
                             <a href="#" className="hover:text-gray-300">Privacy Policy</a>

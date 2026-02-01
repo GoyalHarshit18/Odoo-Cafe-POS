@@ -117,7 +117,7 @@ export const CustomerDisplayScreen = () => {
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
             pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, imgHeight);
-            pdf.save(`Odoo_Cafe_Bill_${order.tokenNumber}.pdf`);
+            pdf.save(`Cafe_Cloud_Bill_${order.tokenNumber}.pdf`);
         } catch (error) {
             console.error('PDF Generation failed:', error);
             alert('Failed to generate PDF. Please try again.');
@@ -152,7 +152,7 @@ export const CustomerDisplayScreen = () => {
                             <span className="text-primary-foreground font-bold text-lg">O</span>
                         </div>
                         <div>
-                            <h1 className="text-lg font-bold text-foreground">Odoo Cafe</h1>
+                            <h1 className="text-lg font-bold text-foreground">Cafe Cloud</h1>
                             <p className="text-xs text-muted-foreground">Customer Display</p>
                         </div>
                     </div>

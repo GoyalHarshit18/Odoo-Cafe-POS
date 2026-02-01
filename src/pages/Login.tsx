@@ -102,7 +102,7 @@ export const LoginPage = () => {
               <span className="text-primary-foreground font-bold text-xl">O</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Odoo Cafe</h1>
+              <h1 className="text-2xl font-bold text-foreground">Cafe Cloud</h1>
               <p className="text-sm text-muted-foreground">Restaurant Management System</p>
             </div>
           </div>
@@ -114,7 +114,7 @@ export const LoginPage = () => {
             <p className="text-muted-foreground">
               {isLogin
                 ? 'Enter your credentials to access the POS system'
-                : 'Register to start using Odoo Cafe'}
+                : 'Register to start using Cafe Cloud'}
             </p>
           </div>
 
@@ -142,7 +142,7 @@ export const LoginPage = () => {
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type="email"
-                  placeholder="staff@odoocafe.com"
+                  placeholder="staff@cafecloud.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12"

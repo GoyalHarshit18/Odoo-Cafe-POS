@@ -63,7 +63,7 @@ export const Sidebar = () => {
           </div>
           {!collapsed && (
             <div className="animate-fade-in">
-              <h1 className="font-bold text-sidebar-foreground">Odoo Cafe</h1>
+              <h1 className="font-bold text-sidebar-foreground">Cafe Cloud</h1>
               <p className="text-xs text-muted-foreground">POS System</p>
             </div>
           )}

@@ -1,4 +1,4 @@
-# Deployment Guide for Odoo Cafe POS
+# Deployment Guide for Cafe Cloud
 
 This project consists of two parts:
 1.  **Frontend**: A React application (Vite)

@@ -73,7 +73,7 @@ export const PaymentScreen = () => {
 
   if (paymentState === 'upi-qr') {
     // Generate a simple UPI URL for the QR placeholder
-    const upiUrl = `upi://pay?pa=merchant@upi&pn=OdooCafe&am=${totalWithTax}&cu=INR`;
+    const upiUrl = `upi://pay?pa=merchant@upi&pn=CafeCloud&am=${totalWithTax}&cu=INR`;
 
     return (
       <div className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
@@ -81,7 +81,7 @@ export const PaymentScreen = () => {
           <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse" />
 
           <h2 className="text-2xl font-bold mb-1 text-center">Scan & Pay</h2>
-          <p className="text-muted-foreground mb-6 text-center text-sm">Odoo Cafe - Table {selectedTable?.number}</p>
+          <p className="text-muted-foreground mb-6 text-center text-sm">Cafe Cloud - Table {selectedTable?.number}</p>
 
           <div className="bg-white p-6 rounded-3xl mb-6 shadow-inner flex flex-col items-center">
             <div className="w-56 h-56 bg-foreground/5 rounded-2xl flex items-center justify-center border-2 border-dashed border-primary/20 relative group">

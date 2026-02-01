@@ -4,10 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Odoo Cafe POS Design System */
+/* Cafe Cloud POS Design System */
 @layer base {
   :root {
-    /* Odoo-inspired Purple Theme */
+    /* Cafe Cloud Purple Theme */
     --background: 0 0% 98%;
     --foreground: 250 10% 15%;
 

@@ -106,7 +106,7 @@ export const CustomerScreen = () => {
         {/* Restaurant Branding */}
         <div className="mt-8 text-center text-muted-foreground">
           <p className="text-sm">{t('thankYou')}</p>
-          <p className="text-xs mt-1">Odoo Cafe • Premium Dining Experience</p>
+          <p className="text-xs mt-1">Cafe Cloud • Premium Dining Experience</p>
         </div>
       </div>
     </div>

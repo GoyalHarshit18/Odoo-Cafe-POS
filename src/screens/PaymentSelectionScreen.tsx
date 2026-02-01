@@ -140,7 +140,7 @@ export const PaymentSelectionScreen = () => {
                     </div>
 
                     <h1 className="text-white text-3xl font-black mb-2 tracking-tight">Payment Successful</h1>
-                    <p className="text-white/80 text-lg font-medium mb-8">Odoo Cafe - Table {selectedTable?.number}</p>
+                    <p className="text-white/80 text-lg font-medium mb-8">Cafe Cloud - Table {selectedTable?.number}</p>
 
                     <div className="bg-white/10 backdrop-blur-md px-10 py-5 rounded-2xl border border-white/20 shadow-xl">
                         <p className="text-white/60 text-xs uppercase tracking-[0.2em] font-bold mb-1 text-center">Amount Paid</p>

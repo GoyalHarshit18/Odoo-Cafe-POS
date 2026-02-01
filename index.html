@@ -4,22 +4,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Odoo Cafe POS - Restaurant Management System</title>
+  <title>Cafe Cloud - Restaurant Management System</title>
   <meta name="description"
-    content="Odoo Cafe POS - A complete restaurant point of sale system for managing orders, tables, kitchen display, and payments. Built for speed and efficiency during peak hours." />
-  <meta name="author" content="Odoo Cafe" />
+    content="Cafe Cloud - A complete restaurant point of sale system for managing orders, tables, kitchen display, and payments. Built for speed and efficiency during peak hours." />
+  <meta name="author" content="Cafe Cloud" />
   <meta name="theme-color" content="#8B5CF6" />
   <link rel="icon" href="data:," />
 </head>
 <script>
-  window.addEventListener('error', function(event) {
+  window.addEventListener('error', function (event) {
     var msg = document.createElement('div');
     msg.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:red;color:white;z-index:10000;padding:20px;font-family:monospace;white-space:pre-wrap;';
     msg.innerText = 'RUNTIME ERROR: ' + event.message + '\nat ' + event.filename + ':' + event.lineno;
     document.body.appendChild(msg);
     console.error('Captured Error:', event);
   });
-  window.addEventListener('unhandledrejection', function(event) {
+  window.addEventListener('unhandledrejection', function (event) {
     var msg = document.createElement('div');
     msg.style.cssText = 'position:fixed;top:50%;left:0;width:100%;background:orange;color:black;z-index:10000;padding:20px;font-family:monospace;white-space:pre-wrap;';
     msg.innerText = 'PROMISE REJECTION: ' + event.reason;

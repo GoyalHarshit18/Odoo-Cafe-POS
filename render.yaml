@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: odoo-cafe-pos-server
+    name: cafe-cloud-server
     runtime: node
     region: singapore # Optional: Choose a region close to your database
     buildCommand: cd server && npm install
