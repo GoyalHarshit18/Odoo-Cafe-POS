@@ -209,6 +209,29 @@ const startServer = async () => {
                 }
             ]);
             console.log('Sample products created.');
+        } else {
+            // New logic: Update missing images for existing products
+            const productsWithNoImage = await Product.findAll({ where: { image: null } });
+            if (productsWithNoImage.length > 0) {
+                console.log(`Updating missing images for ${productsWithNoImage.length} products...`);
+                const imageMap = {
+                    'Espresso': 'https://images.unsplash.com/photo-1510707513152-52462e1a3597?q=80&w=800',
+                    'Cappuccino': 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=800',
+                    'Latte': 'https://images.unsplash.com/photo-1536939459926-301728717817?q=80&w=800',
+                    'Green Tea': 'https://images.unsplash.com/photo-1523920290228-4f321a939b4c?q=80&w=800',
+                    'Masala Chai': 'https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?q=80&w=800',
+                    'Veg Burger': 'https://images.unsplash.com/photo-1512152272829-e3139592d56f?q=80&w=800',
+                    'Chicken Sandwich': 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=80&w=800',
+                    'French Fries': 'https://images.unsplash.com/photo-1573082801971-13b5bbce784a?q=80&w=800'
+                };
+
+                for (const prod of productsWithNoImage) {
+                    if (imageMap[prod.name]) {
+                        await prod.update({ image: imageMap[prod.name] });
+                    }
+                }
+                console.log('Missing images updated.');
+            }
         }
 
     } catch (err) {
