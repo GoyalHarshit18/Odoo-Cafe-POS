@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BASE_URL } from '@/lib/api';
+import { BASE_URL, getAuthToken } from '@/lib/api';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -37,7 +37,7 @@ export const AdminDashboardScreen = () => {
     const [isEditStaffOpen, setIsEditStaffOpen] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = getAuthToken();
         if (!token) {
             navigate('/login');
             return;
@@ -54,8 +54,11 @@ export const AdminDashboardScreen = () => {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
         try {
+            const token = getAuthToken();
+            if (!token) return;
+
             const response = await fetch(`${BASE_URL}/api/admin/stats`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                headers: { 'Authorization': `Bearer ${token}` },
                 signal: controller.signal
             });
             if (response.ok) {
@@ -77,8 +80,11 @@ export const AdminDashboardScreen = () => {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
         try {
+            const token = getAuthToken();
+            if (!token) return;
+
             const response = await fetch(`${BASE_URL}/api/admin/staff`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                headers: { 'Authorization': `Bearer ${token}` },
                 signal: controller.signal
             });
             if (response.ok) {
@@ -98,11 +104,14 @@ export const AdminDashboardScreen = () => {
 
     const handleAddStaff = async () => {
         try {
+            const token = getAuthToken();
+            if (!token) return;
+
             const response = await fetch(`${BASE_URL}/api/admin/staff`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(newStaff)
             });
@@ -127,11 +136,14 @@ export const AdminDashboardScreen = () => {
 
     const handleUpdateStaff = async () => {
         try {
+            const token = getAuthToken();
+            if (!token) return;
+
             const response = await fetch(`${BASE_URL}/api/admin/staff/${editingStaff.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(editingStaff)
             });
@@ -151,9 +163,12 @@ export const AdminDashboardScreen = () => {
     const handleDeleteStaff = async (id: number) => {
         if (!confirm("Are you sure?")) return;
         try {
+            const token = getAuthToken();
+            if (!token) return;
+
             const response = await fetch(`${BASE_URL}/api/admin/staff/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 toast({ title: "Staff Removed" });

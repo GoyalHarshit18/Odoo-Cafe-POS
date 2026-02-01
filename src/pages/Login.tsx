@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { authApi } from '@/lib/api';
+import { authApi, getAuthToken } from '@/lib/api';
 import { useTheme } from 'next-themes';
 import { useEffect } from 'react';
 
@@ -28,7 +28,7 @@ export const LoginPage = () => {
     setTheme('light');
 
     // Check if user is already logged in
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (token) {

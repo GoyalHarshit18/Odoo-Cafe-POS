@@ -195,9 +195,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const checkActiveSession = useCallback(async () => {
     try {
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/sessions`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
       if (response.ok) {
@@ -221,7 +224,7 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
 
     // Failsafe: Hide loading spinner after 20 seconds no matter what
     const failsafeTimer = setTimeout(() => {
@@ -258,11 +261,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const openSession = useCallback(async () => {
     try {
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/sessions/open`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ openingBalance: 5000 })
       });
@@ -322,9 +328,12 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const closeSession = useCallback(async () => {
     if (session) {
       try {
+        const token = getAuthToken();
+        if (!token) return;
+
         await fetch(`${BASE_URL}/api/sessions/${session.id}/close`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         setSession(null);
         localStorage.removeItem('activeSession');
@@ -342,8 +351,11 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSelectedTable(table);
     if (table && table.status === 'occupied') {
       try {
+        const token = getAuthToken();
+        if (!token) return;
+
         const response = await fetch(`${BASE_URL}/api/orders/table/${table.id}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
           const orderData = await response.json();
@@ -373,11 +385,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateTableStatus = useCallback(async (tableId: string, status: TableStatus) => {
     try {
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/pos/tables/${tableId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status })
       });
@@ -461,11 +476,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
 
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           tableId: parseInt(selectedTable.id.toString()),
@@ -545,11 +563,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (status === 'preparing') nextStatus = 'preparing';
       if (status === 'completed') nextStatus = 'ready';
 
+      const token = getAuthToken();
+      if (!token) return;
+
       const response = await fetch(`${BASE_URL}/api/orders/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ status: nextStatus })
       });
@@ -569,11 +590,14 @@ export const POSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const tableOrder = orders.find(o => o.tableId === selectedTable.id && o.status !== 'paid');
     if (tableOrder) {
       try {
+        const token = getAuthToken();
+        if (!token) return;
+
         const response = await fetch(`${BASE_URL}/api/orders/${tableOrder.id}/pay`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ paymentMethod: method })
         });

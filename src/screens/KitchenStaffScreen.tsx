@@ -4,7 +4,7 @@ import { LogOut, RefreshCw, ChefHat, Play, CheckCircle2, ListChecks, Flame, Cloc
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { BASE_URL } from '@/lib/api';
+import { BASE_URL, getAuthToken } from '@/lib/api';
 
 interface OrderItem {
     id: string;
@@ -33,10 +33,10 @@ export const KitchenStaffScreen = () => {
 
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
-    const fetchOrders = useCallback(async () => {
+    const fetchOrders = useCallback(async (showToast = false) => {
         setIsLoading(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = getAuthToken();
             if (!token) {
                 navigate('/login');
                 return;
@@ -98,7 +98,8 @@ export const KitchenStaffScreen = () => {
 
     const updateOrderStatus = async (orderId: string, newStatus: string, lockedByValue?: number | null) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = getAuthToken();
+            if (!token) return;
             const body: any = { status: newStatus };
             if (lockedByValue !== undefined) body.lockedBy = lockedByValue;
 
@@ -168,11 +169,13 @@ export const KitchenStaffScreen = () => {
         if (!order || !order.tableId) return;
 
         try {
+            const token = getAuthToken();
+            if (!token) return;
             const response = await fetch(`${BASE_URL}/api/pos/tables/${order.tableId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ status: 'free' })
             });

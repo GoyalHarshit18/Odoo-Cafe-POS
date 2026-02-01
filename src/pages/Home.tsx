@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAuthToken } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import {
     ArrowRight,
@@ -22,7 +23,7 @@ import pizzaImage from '@/assets/pizza_wood_oven_1769246157679.png';
 
 export const Home = () => {
     const navigate = useNavigate();
-    const isAuthenticated = !!localStorage.getItem('token');
+    const isAuthenticated = !!getAuthToken();
     const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {

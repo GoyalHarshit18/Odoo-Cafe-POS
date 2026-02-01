@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { BASE_URL } from '@/lib/api';
+import { BASE_URL, getAuthToken } from '@/lib/api';
 import { CheckCircle2, Clock, Download, LogOut } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -40,10 +40,16 @@ export const CustomerDisplayScreen = () => {
                     return;
                 }
 
+                const token = getAuthToken();
+                if (!token) {
+                    navigate('/login'); // Redirect if no token
+                    return;
+                }
+
                 const user = JSON.parse(userStr);
                 const response = await fetch(`${BASE_URL}/api/orders/customer/${user.id}`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -172,7 +178,7 @@ export const CustomerDisplayScreen = () => {
             </header>
 
             {/* Status Banner */}
-            <div className={`py-4 ${isPaid ? 'bg-status-free/10' : 'bg-warm-amber/10'}`}>
+            <div className={`py - 4 ${isPaid ? 'bg-status-free/10' : 'bg-warm-amber/10'} `}>
                 <div className="max-w-4xl mx-auto px-6">
                     <div className="flex items-center justify-center gap-3">
                         {isPaid ? (

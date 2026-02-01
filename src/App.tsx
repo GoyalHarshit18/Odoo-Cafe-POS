@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { POSProvider } from "@/context/POSContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { getAuthToken } from "@/lib/api";
 
 // Lazy Load Pages
 const LoginPage = lazy(() => import("./pages/Login").then(module => ({ default: module.LoginPage })));
@@ -35,7 +36,7 @@ const LoadingFallback = () => (
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = localStorage.getItem('token');
+  const token = getAuthToken();
   if (!token) {
     return <Navigate to="/login" replace />;
   }

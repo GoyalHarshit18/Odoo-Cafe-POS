@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BASE_URL } from '@/lib/api';
+import { BASE_URL, getAuthToken } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,9 +30,11 @@ export const AdminFloorManager = () => {
     const fetchFloors = async () => {
         setLoading(true);
         try {
+            const token = getAuthToken();
+            if (!token) return;
 
             const response = await fetch(`${BASE_URL}/api/pos/floors`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 const data = await response.json();
@@ -48,12 +50,14 @@ export const AdminFloorManager = () => {
     const handleAddFloor = async () => {
         if (!newFloorName) return;
         try {
+            const token = getAuthToken();
+            if (!token) return;
 
             const response = await fetch(`${BASE_URL}/api/pos/floors`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ name: newFloorName })
             });
@@ -76,10 +80,12 @@ export const AdminFloorManager = () => {
     const handleDeleteFloor = async (id: string) => {
         if (!confirm("Delete this floor and all its tables?")) return;
         try {
+            const token = getAuthToken();
+            if (!token) return;
 
             const response = await fetch(`${BASE_URL}/api/pos/floors/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 toast({ title: "Floor Deleted" });
@@ -97,12 +103,14 @@ export const AdminFloorManager = () => {
     const handleAddTable = async () => {
         if (!selectedFloorForTable) return;
         try {
+            const token = getAuthToken();
+            if (!token) return;
 
             const response = await fetch(`${BASE_URL}/api/pos/tables`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     floorId: selectedFloorForTable,

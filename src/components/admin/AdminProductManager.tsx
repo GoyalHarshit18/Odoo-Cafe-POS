@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Edit, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { BASE_URL } from '@/lib/api';
+import { BASE_URL, getAuthToken } from '@/lib/api';
 
 export const AdminProductManager = () => {
     const { toast } = useToast();
@@ -31,9 +31,11 @@ export const AdminProductManager = () => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
+            const token = getAuthToken();
+            if (!token) return;
 
             const response = await fetch(`${BASE_URL}/api/pos/products`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 const data = await response.json();
@@ -53,11 +55,14 @@ export const AdminProductManager = () => {
         const method = editingProduct ? 'PUT' : 'POST';
 
         try {
+            const token = getAuthToken();
+            if (!token) return;
+
             const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(formData)
             });
@@ -84,10 +89,12 @@ export const AdminProductManager = () => {
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this product?")) return;
         try {
+            const token = getAuthToken();
+            if (!token) return;
 
             const response = await fetch(`${BASE_URL}/api/pos/products/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
                 toast({ title: "Product Deleted" });
