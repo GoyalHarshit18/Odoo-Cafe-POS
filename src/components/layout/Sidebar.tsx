@@ -58,12 +58,11 @@ export const Sidebar = () => {
     <>
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">O</span>
-          </div>
+          <img src="/logo.png" alt="Cafe Cloud" className="w-10 h-10 object-contain" />
           {!collapsed && (
-            <div className="animate-fade-in flex flex-col items-start">
-              <img src="/logo.png" alt="Cafe Cloud" className="h-12 object-contain -ml-2" />
+            <div className="animate-fade-in">
+              <h1 className="font-bold text-sidebar-foreground">Cafe Cloud</h1>
+              <p className="text-xs text-muted-foreground">POS System</p>
             </div>
           )}
         </div>

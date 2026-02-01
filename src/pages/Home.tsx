@@ -48,9 +48,7 @@ export const Home = () => {
             <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md border-b border-border/50 py-3' : 'bg-transparent py-4'}`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-                        <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                            <span className="text-primary-foreground font-bold text-xl">O</span>
-                        </div>
+                        <img src="/logo.png" alt="Cafe Cloud" className="w-12 h-12 object-contain" />
                         <span className="font-semibold text-2xl tracking-tight text-primary">Cafe Cloud</span>
                     </div>
                     <div className="flex items-center gap-8">
@@ -253,6 +251,7 @@ export const Home = () => {
                         <div className="space-y-6">
                             <div className="flex items-center gap-3">
                                 <img src="/logo.png" alt="Cafe Cloud" className="h-12 w-auto" />
+                                <span className="font-semibold text-2xl tracking-tight text-white">Cafe Cloud</span>
                             </div>
                             <p className="text-gray-400 leading-relaxed max-w-xs">
                                 Automate your cafe operations with the world's most intuitive and powerful SaaS POS solution. Crafted for excellence.
