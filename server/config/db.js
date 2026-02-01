@@ -24,7 +24,7 @@ const initDatabase = async () => {
       },
       keepAlive: true,
       connectTimeout: 60000,
-      family: 4 // Hint for IPv4, but manual resolution is better for Render
+      family: 4 // Hint for IPv4
     },
     pool: {
       max: 5,
@@ -40,30 +40,58 @@ const initDatabase = async () => {
   };
 
   if (isRender && finalUrl && finalUrl.includes('pooler.supabase.com')) {
-    console.log('[DB] Render detected with Pooler URL. Probing connection...');
-
-    // Quick probe to see if pooler is reachable
-    const probeSequelize = new Sequelize(finalUrl, {
-      dialect: 'postgres',
-      logging: false,
-      dialectOptions: {
-        ssl: { require: true, rejectUnauthorized: false },
-        connectTimeout: 5000,
-        family: 4
-      }
-    });
+    console.log('[DB] Render detected with Pooler URL. Attempting to force IPv4...');
 
     try {
-      // Give it 5 seconds to authenticate
+      // Parse the pooler URL
+      const poolerUrlParts = new URL(finalUrl);
+      const hostname = poolerUrlParts.hostname;
+
+      console.log(`[DB] Resolving Pooler DNS for ${hostname} to force IPv4...`);
+      const addresses = await dns.promises.resolve4(hostname);
+      const ipAddress = addresses[0];
+      console.log(`[DB] Resolved ${hostname} to ${ipAddress}`);
+
+      // Construct configuration with explicit IP and SNI
+      const poolerConfig = {
+        ...dbConfig,
+        host: ipAddress,
+        port: 6543, // Pooler port
+        dialectOptions: {
+          ...dbConfig.dialectOptions,
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+            servername: hostname // CRITICAL for SNI
+          }
+        }
+      };
+
+      // Probe with the forced IPv4 connection
+      const probeSequelize = new Sequelize(
+        poolerUrlParts.pathname.substring(1), // db name (usually postgres)
+        poolerUrlParts.username,
+        poolerUrlParts.password,
+        poolerConfig
+      );
+
+      // Give it 10 seconds to authenticate (bumped from 5)
       await Promise.race([
         probeSequelize.authenticate(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Probe timeout')), 5000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Pooler probe timeout')), 10000))
       ]);
-      console.log('[DB] Pooler is reachable. Using primary connection.');
-      sequelizeInstance = new Sequelize(finalUrl, dbConfig);
+
+      console.log('[DB] Pooler is reachable via IPv4. Using primary connection.');
+      sequelizeInstance = probeSequelize; // Reuse the successful instance
+      return sequelizeInstance;
+
     } catch (err) {
-      console.warn('[DB] Pooler probe failed or timed out:', err.message);
+      console.warn('[DB] Pooler probe failed (IPv4 forced):', err.message);
       console.log('[DB] Switching to DIRECT CONNECTION fallback...');
+
+      // ... Failover logic (Direct) ...
+      // We keep this just in case, even though we know Direct is likely IPv6 only.
+      // Maybe we can try to resolve Direct to IPv4 too? (We saw ENODATA, but worth keeping the logic robust)
 
       // Convert Pooler URL to Direct URL keys
       try {
@@ -73,7 +101,7 @@ const initDatabase = async () => {
           const password = urlMatch[2];
           const hostname = `db.${projectId}.supabase.co`;
 
-          console.log(`[DB] Resolving DNS for ${hostname} to force IPv4...`);
+          console.log(`[DB] Resolving DNS for ${hostname} to force IPv4 (Fallback)...`);
           try {
             const addresses = await dns.promises.resolve4(hostname);
             const ipAddress = addresses[0];
@@ -81,7 +109,6 @@ const initDatabase = async () => {
 
             connectionMethod = "Fallback (Direct - IPv4)";
 
-            // Construct direct connection with explicit IP and SNI
             sequelizeInstance = new Sequelize(
               'postgres', // db name
               'postgres', // user
@@ -95,15 +122,15 @@ const initDatabase = async () => {
                   ssl: {
                     require: true,
                     rejectUnauthorized: false,
-                    servername: hostname // CRITICAL for SNI with Supabase via IP
+                    servername: hostname
                   }
                 }
               }
             );
             console.log('[DB] Failover configuration created (Direct IP).');
           } catch (dnsErr) {
-            console.error('[DB] DNS resolution failed:', dnsErr.message);
-            // Fallback to standard URL construction if DNS fails
+            console.error('[DB] DNS resolution failed for Fallback:', dnsErr.message);
+            // Fallback to standard URL
             finalUrl = `postgresql://postgres:${password}@${hostname}:5432/postgres`;
             connectionMethod = "Fallback (Direct - Standard)";
             sequelizeInstance = new Sequelize(finalUrl, dbConfig);
@@ -116,8 +143,6 @@ const initDatabase = async () => {
         console.error('[DB] Critical error parsing failover URL:', parseErr.message);
         sequelizeInstance = new Sequelize(finalUrl, dbConfig);
       }
-    } finally {
-      await probeSequelize.close().catch(() => { });
     }
   } else {
     // Non-Render or non-pooler environment
