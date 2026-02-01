@@ -100,24 +100,24 @@ export const updateOrder = async (req, res) => {
         const currentOrder = await Order.findByPk(orderId);
 
         if (!currentOrder) {
+            console.error(`[UPDATE_ORDER] Order ${orderId} not found`);
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        // Ownership Check: If order is locked, only the locker can update it
-        // Use != to handle potential string/number mismatches from different clients
-        if (currentOrder.lockedBy && req.body.lockedBy && currentOrder.lockedBy != req.user.id) {
-            return res.status(403).json({ message: 'This order is currently being prepared by another staff member' });
-        }
+        console.log(`[UPDATE_ORDER] Modifying Order ${orderId}. Status: ${currentOrder.status} -> ${req.body.status}, current lockedBy: ${currentOrder.lockedBy}, req user: ${req.user.id}`);
 
-        // Similarly, if it's already locked and they try to update status without being the locker
-        if (currentOrder.lockedBy && currentOrder.lockedBy != req.user.id && !req.body.lockedBy) {
-            return res.status(403).json({ message: 'This order is locked for preparation by another staff member' });
+        // Ownership Check: If order is locked, only the locker can update it
+        if (currentOrder.lockedBy && req.body.lockedBy && currentOrder.lockedBy != req.user.id) {
+            console.warn(`[UPDATE_ORDER] Lock mismatch. LockedBy: ${currentOrder.lockedBy}, Attempted change by: ${req.user.id}`);
+            return res.status(403).json({ message: 'This order is currently being prepared by another staff member' });
         }
 
         await Order.update(req.body, { where: { id: orderId } });
         const updatedOrder = await Order.findByPk(orderId);
+        console.log(`[UPDATE_ORDER] Success. New Status: ${updatedOrder.status}, lockedBy: ${updatedOrder.lockedBy}`);
         res.status(200).json(updatedOrder);
     } catch (error) {
+        console.error(`[UPDATE_ORDER] Error:`, error.message);
         res.status(500).json({ message: error.message });
     }
 };
