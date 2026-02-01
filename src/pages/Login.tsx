@@ -29,8 +29,14 @@ export const LoginPage = () => {
 
     // Check if user is already logged in
     const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
     if (token) {
-      navigate('/pos', { replace: true });
+      if (user.role === 'kitchen') {
+        navigate('/kitchen-display', { replace: true });
+      } else {
+        navigate('/pos', { replace: true });
+      }
     }
   }, [setTheme, navigate]);
 

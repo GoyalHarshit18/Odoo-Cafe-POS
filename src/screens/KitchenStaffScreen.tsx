@@ -62,10 +62,10 @@ export const KitchenStaffScreen = () => {
                             tableId: o.tableId || o.Table?.id,
                             time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                             status: o.status,
-                            items: o.items.map((i: any) => ({
+                            items: (o.items || []).map((i: any) => ({
                                 id: i.id,
-                                name: i.Product?.name || i.name,
-                                quantity: i.quantity,
+                                name: i.Product?.name || i.name || 'Unknown Item',
+                                quantity: i.quantity || 1,
                             })),
                             createdAt: o.createdAt,
                             lockedBy: o.lockedBy
